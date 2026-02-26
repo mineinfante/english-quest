@@ -129,7 +129,7 @@ body {
 .tabs-avances .tab-button {
   background: rgba(167, 139, 250, 0.14);   /* un poco más visible */
   border: 1px solid rgba(167, 139, 250, 0.28);
-  color: rgba(255,255,255,0.85);
+  color: rgba(255,255,255,0.65);
 }
 
 .tabs-avances .tab-button:hover {

@@ -265,6 +265,7 @@ function App() {
         onChangeAdvance={changeAdvance}
         onMoveAdvance={moveAdvance}
         advancesProgress={levelState?.advancesProgress}
+        currentDay={currentDay}
       />
 
       <div className="dashboard-row">

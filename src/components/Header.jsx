@@ -15,8 +15,7 @@ import { CONTENT } from "../content"
 function SortableAdvanceButton({
   id,
   title,
-  isUnlocked,
-  isActive,
+  isActiveProp,
   progress,
   onClick
 }) {
@@ -31,58 +30,53 @@ function SortableAdvanceButton({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isUnlocked ? 1 : 0.4,
-    cursor: isUnlocked ? "pointer" : "not-allowed",
+    opacity: 1,
+    cursor: "pointer",
     position: "relative",
   }
 
-    const isStarted = progress?.started && !progress?.completed
-    const isCompleted = progress?.completed
+  const isStarted = progress?.started && !progress?.completed
+  const isCompleted = progress?.completed
 
   return (
     <button
       ref={setNodeRef}
       style={style}
       disabled={false}
-      className={`tab-button ${isActive ? "active" : ""}`}
-      onClick={onClick}
+      className={`tab-button ${isActiveProp ? "active" : ""}`}
+      onClick={(e) => {
+        e.stopPropagation()
+        onClick()
+      }}
       {...attributes}
-      {...listeners}
     >
       {title}
 
-        {isStarted && (
+      {(isActiveProp || isStarted || isCompleted) && (
         <span
-            style={{
+          style={{
             position: "absolute",
             bottom: "4px",
             right: "4px",
             width: "6px",
             height: "6px",
             borderRadius: "50%",
-            background: "rgba(255,255,255,0.6)"
-            }}
+            background: isCompleted
+              ? "white"
+              : isActiveProp
+              ? "#22c55e"   // verde activo
+              : "#facc15",  // amarillo iniciado
+            boxShadow: isCompleted
+              ? "0 0 6px rgba(255,255,255,0.6)"
+              : isActiveProp
+              ? "0 0 6px rgba(34,197,94,0.6)"
+              : "none"
+          }}
         />
-        )}
-
-        {isCompleted && (
-        <span
-            style={{
-            position: "absolute",
-            bottom: "4px",
-            right: "4px",
-            width: "6px",
-            height: "6px",
-            borderRadius: "50%",
-            background: "white",
-            boxShadow: "0 0 6px rgba(255,255,255,0.6)"
-            }}
-        />
-        )}
+      )}
     </button>
   )
 }
-
 
 export default function Header({
   vivenciasList,
@@ -93,10 +87,10 @@ export default function Header({
   setActiveConquista,
   advances,
   currentAdvanceIndex,
-  maxAdvanceUnlocked,
   onChangeAdvance,
   onMoveAdvance,
-  advancesProgress
+  advancesProgress,
+  currentDay
 }) {
 
   return (
@@ -109,7 +103,6 @@ export default function Header({
           {vivenciasList.map((vivencia) => (
             <button
               key={vivencia}
-              
               onClick={() => setActiveVivencia(vivencia)}
               className={`tab-button ${
                 activeVivencia === vivencia ? "active" : ""
@@ -142,25 +135,49 @@ export default function Header({
         </div>
       </div>
 
-        <div className="divider-soft" />
+      <div className="divider-soft" />
 
-        {/* Días */}
-        <div className="header-row">
-            <span className="header-label">Días</span>
-            <div className="tabs-container tabs-dias">
-                <div style={{ margin: "0 auto", display: "flex", gap: "8px" }}>
+      {/* Días */}
+      <div className="header-row">
+        <span className="header-label">Días</span>
+        <div className="tabs-container tabs-dias">
+          <div style={{ margin: "0 auto", display: "flex", gap: "8px" }}>
+            {[1,2,3,4,5,6,7].map((day) => {
+              const isLocked = day > currentDay
+              const isActive = day === currentDay
 
-                {[1,2,3,4,5,6,7].map((day) => (
+              return (
                 <button
-                    key={day}
-                    className={`tab-button ${day === 1 ? "active" : ""}`}
+                  key={day}
+                  className={`tab-button ${isActive ? "active" : ""}`}
+                  style={{
+                    opacity: isLocked ? 0.5 : 1,
+                    cursor: isLocked ? "not-allowed" : "pointer",
+                    position: "relative"
+                  }}
+                  disabled={isLocked}
                 >
-                    {day}
+                  {day}
+
+                  {isLocked && (
+                    <span
+                      style={{
+                        position: "absolute",
+                        bottom: "4px",
+                        right: "4px",
+                        fontSize: "10px",
+                        opacity: 0.8
+                      }}
+                    >
+                      🔒
+                    </span>
+                  )}
                 </button>
-                ))}
-                </div>
-            </div>
+              )
+            })}
+          </div>
         </div>
+      </div>
 
       {/* Avances */}
       <div className="header-row">
@@ -186,7 +203,6 @@ export default function Header({
               strategy={horizontalListSortingStrategy}
             >
               {advances.map((advance, index) => {
-                const isUnlocked = true
                 const isActive = index === currentAdvanceIndex
                 const progress = advancesProgress?.[advance.id]
 
@@ -195,10 +211,10 @@ export default function Header({
                     key={advance.id}
                     id={advance.id}
                     title={advance.title}
-                    isUnlocked={isUnlocked}
-                    isActive={isActive}
+                    isActiveProp={isActive}
                     progress={progress}
-                    onClick={() => onChangeAdvance(index)}                  />
+                    onClick={() => onChangeAdvance(index)}
+                  />
                 )
               })}
             </SortableContext>
