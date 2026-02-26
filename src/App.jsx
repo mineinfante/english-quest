@@ -207,8 +207,7 @@ function App() {
             ...vivenciaData,
             [activeConquista]: {
               ...conquistaData,
-              advancesOrder: newOrder,
-              currentAdvanceIndex: newIndex
+              advancesOrder: newOrder
             }
           }
         }
