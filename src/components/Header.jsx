@@ -36,8 +36,10 @@ function SortableAdvanceButton({
     gap: "6px"
   }
 
-  const isStarted = progress?.started && !progress?.completed
-  const isCompleted = progress?.completed
+  const isStarted = progress?.started && !progress?.finished
+  const isFinished = progress?.finished
+  const isPassed = progress?.finished && progress?.passed
+  const isFailed = progress?.finished && !progress?.passed
 
   return (
     <div
@@ -74,7 +76,7 @@ function SortableAdvanceButton({
         ⠿
       </span>
 
-      {(isActiveProp || isStarted || isCompleted) && (
+      {(isActiveProp || isStarted || isFinished) && (
         <span
           style={{
             position: "absolute",
@@ -83,12 +85,16 @@ function SortableAdvanceButton({
             width: "6px",
             height: "6px",
             borderRadius: "50%",
-            background: isCompleted
+            background: isPassed
               ? "white"
+              : isFailed
+              ? "#f97316"
               : isActiveProp
               ? "#22c55e"
-              : "#facc15",
-            boxShadow: isCompleted
+              : isStarted
+              ? "#facc15"
+              : "transparent",
+            boxShadow: isPassed
               ? "0 0 6px rgba(255,255,255,0.6)"
               : isActiveProp
               ? "0 0 6px rgba(34,197,94,0.6)"

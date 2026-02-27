@@ -22,8 +22,8 @@ export function createInitialPlayer() {
 
           advancesProgress[dayAdvanceKey] = {
             started: false,
-            completed: false,
-            validationPassed: false,
+            finished: false,
+            passed: false,
             attempts: 0,
             quizScore: 0
           }
@@ -33,8 +33,8 @@ export function createInitialPlayer() {
       advances.forEach((advance) => {
         advancesProgress[advance.id] = {
           started: false,
-          completed: false,
-          validationPassed: false,
+          finished: false,
+          passed: false,
           attempts: 0,
           quizScore: 0
         }

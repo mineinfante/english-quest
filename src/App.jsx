@@ -79,7 +79,7 @@ function App() {
         levelState?.advancesProgress?.[
           `${currentDay}-${advance.id}`
         ]
-      return progress?.completed === true
+      return progress?.finished && progress?.passed
     })
 
   // =============================
@@ -95,7 +95,7 @@ function App() {
         levelState?.advancesProgress?.[
           `${day}-${advance.id}`
         ]
-      return progress?.completed === true
+      return progress?.finished && progress?.passed
     })
 
     if (allCompleted) return "completed"
@@ -127,7 +127,7 @@ function App() {
           levelState?.advancesProgress?.[
             `${day}-${advance.id}`
           ]
-        return progress?.completed === true
+        return progress?.finished && progress?.passed
       })
     })
 
@@ -158,8 +158,15 @@ console.log("Conquista completed:", isConquistaCompleted)
     if (!currentAdvance) return
 
     setPlayer((prev) => {
+
+console.log("After mission:", player)
+
       const vivenciaData = prev.vivencias[activeVivencia]
       const conquistaData = vivenciaData[activeConquista]
+
+
+console.log("Updated advance:", `${currentDay}-${currentAdvance.id}`)
+
 
       return {
         ...prev,
@@ -176,7 +183,8 @@ console.log("Conquista completed:", isConquistaCompleted)
                   ...conquistaData.advancesProgress[
                     `${currentDay}-${currentAdvance.id}`
                   ],
-                  completed: true
+                  finished: true,
+                  passed: true
                 }
               }
             }
@@ -380,7 +388,8 @@ console.log("Conquista completed:", isConquistaCompleted)
         updatedProgress[key] = {
           ...updatedProgress[key],
           started: true,
-          completed: true
+          finished: true,
+          passed: true
         }
       })
 
