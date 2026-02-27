@@ -30,27 +30,49 @@ function SortableAdvanceButton({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: 1,
-    cursor: "pointer",
     position: "relative",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "6px"
   }
 
   const isStarted = progress?.started && !progress?.completed
   const isCompleted = progress?.completed
 
   return (
-    <button
+    <div
       ref={setNodeRef}
       style={style}
-      disabled={false}
       className={`tab-button ${isActiveProp ? "active" : ""}`}
-      onClick={(e) => {
-        e.stopPropagation()
-        onClick()
-      }}
       {...attributes}
     >
-      {title}
+      {/* Click normal */}
+      <button
+        style={{
+          all: "unset",
+          cursor: "pointer",
+          padding: "4px 6px"
+        }}
+        onClick={(e) => {
+          e.stopPropagation()
+          onClick()
+        }}
+      >
+        {title}
+      </button>
+
+      {/* Drag handle */}
+      <span
+        {...listeners}
+        style={{
+          cursor: "grab",
+          fontSize: "10px",
+          opacity: 0.6,
+          userSelect: "none"
+        }}
+      >
+        ⠿
+      </span>
 
       {(isActiveProp || isStarted || isCompleted) && (
         <span
@@ -64,8 +86,8 @@ function SortableAdvanceButton({
             background: isCompleted
               ? "white"
               : isActiveProp
-              ? "#22c55e"   // verde activo
-              : "#facc15",  // amarillo iniciado
+              ? "#22c55e"
+              : "#facc15",
             boxShadow: isCompleted
               ? "0 0 6px rgba(255,255,255,0.6)"
               : isActiveProp
@@ -74,7 +96,7 @@ function SortableAdvanceButton({
           }}
         />
       )}
-    </button>
+    </div>
   )
 }
 
@@ -87,10 +109,13 @@ export default function Header({
   setActiveConquista,
   advances,
   currentAdvanceIndex,
+  maxAdvanceUnlocked,
   onChangeAdvance,
   onMoveAdvance,
   advancesProgress,
-  currentDay
+  currentDay,
+  maxDayUnlocked,
+  onChangeDay
 }) {
 
   return (
@@ -129,7 +154,7 @@ export default function Header({
               {
                 CONTENT[activeVivencia]?.[conquista]?.meta?.name
                 || conquista
-             }
+              }
             </button>
           ))}
         </div>
@@ -143,7 +168,7 @@ export default function Header({
         <div className="tabs-container tabs-dias">
           <div style={{ margin: "0 auto", display: "flex", gap: "8px" }}>
             {[1,2,3,4,5,6,7].map((day) => {
-              const isLocked = day > currentDay
+              const isLocked = day > maxDayUnlocked
               const isActive = day === currentDay
 
               return (
@@ -154,6 +179,9 @@ export default function Header({
                     opacity: isLocked ? 0.5 : 1,
                     cursor: isLocked ? "not-allowed" : "pointer",
                     position: "relative"
+                  }}
+                  onClick={() => {
+                    if (!isLocked) onChangeDay(day)
                   }}
                   disabled={isLocked}
                 >
@@ -199,12 +227,16 @@ export default function Header({
             }}
           >
             <SortableContext
+              key={`day-${currentDay}`}
               items={advances.map(a => a.id)}
               strategy={horizontalListSortingStrategy}
             >
               {advances.map((advance, index) => {
                 const isActive = index === currentAdvanceIndex
-                const progress = advancesProgress?.[advance.id]
+                const progress =
+                  advancesProgress?.[
+                    `${currentDay}-${advance.id}`
+                  ]
 
                 return (
                   <SortableAdvanceButton

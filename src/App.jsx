@@ -13,11 +13,7 @@ function App() {
   // =============================
   const [player, setPlayer] = useState(() => {
     const saved = localStorage.getItem("player")
-
-    if (saved) {
-      return JSON.parse(saved)
-    }
-
+    if (saved) return JSON.parse(saved)
     return createInitialPlayer()
   })
 
@@ -29,14 +25,16 @@ function App() {
   const [isAdvanceRunning, setIsAdvanceRunning] = useState(false)
 
   // =============================
-  // 3️⃣ Derivados desde el estado
+  // 3️⃣ Derivados
   // =============================
   const levelState =
     player.vivencias[activeVivencia]?.[activeConquista]
 
-  const currentDay =
-    levelState?.currentDay ?? 1
-  
+  const currentDay = levelState?.currentDay ?? 1
+
+  const maxDayUnlocked =
+    Math.max(levelState?.maxDayUnlocked ?? 1, currentDay)
+
   const currentAdvanceIndex =
     levelState?.currentAdvanceIndex ?? 0
 
@@ -45,10 +43,6 @@ function App() {
       levelState?.maxAdvanceUnlocked ?? 0,
       currentAdvanceIndex
     )
-    
-  // =============================
-  // Construcción ordenada desde advancesOrder
-  // =============================
 
   const contentAdvances =
     CONTENT[activeVivencia]?.[activeConquista]?.advances ?? []
@@ -60,18 +54,33 @@ function App() {
     advancesOrder.length > 0
       ? advancesOrder
           .map((id) =>
-            contentAdvances.find((advance) => advance.id === id)
+            contentAdvances.find((a) => a.id === id)
           )
           .filter(Boolean)
       : contentAdvances
-                        
+
   const currentAdvance =
     advances[currentAdvanceIndex] ?? null
 
   const advanceProgress =
     currentAdvance
-      ? levelState?.advancesProgress?.[currentAdvance.id]
+      ? levelState?.advancesProgress?.[
+          `${currentDay}-${currentAdvance.id}`
+        ]
       : null
+
+  // =============================
+  // 🟣 Día completado
+  // =============================
+  const isDayCompleted =
+    advances.length > 0 &&
+    advances.every((advance) => {
+      const progress =
+        levelState?.advancesProgress?.[
+          `${currentDay}-${advance.id}`
+        ]
+      return progress?.completed === true
+    })
 
   const xp = levelState?.xp ?? 0
 
@@ -81,9 +90,8 @@ function App() {
     Object.keys(CONTENT[activeVivencia] || {})
       .filter((key) => key !== "meta")
 
-
   // =============================
-  // 4️⃣ Misiones temporales
+  // 4️⃣ Misiones
   // =============================
   const missions = [
     { id: "m1", title: "Write 5 sentences in English", xp: 20 },
@@ -92,41 +100,34 @@ function App() {
   ]
 
   const completeMission = (xpAmount) => {
+    if (!currentAdvance) return
+
     setPlayer((prev) => {
-      const vivenciaData =
-        prev.vivencias[activeVivencia] || {}
+      const vivenciaData = prev.vivencias[activeVivencia]
+      const conquistaData = vivenciaData[activeConquista]
 
-      const conquistaData =
-        vivenciaData[activeConquista] || {
-          xp: 0,
-          daysInLevel: 0,
-          currentAdvanceIndex: 0,
-          maxAdvanceUnlocked: 0,
-          completedAdvances: []
-        }
-
-        return {
-          ...prev,
-          vivencias: {
-            ...prev.vivencias,
-            [activeVivencia]: {
-              ...vivenciaData,
-              [activeConquista]: {
-                ...conquistaData,
-                xp: conquistaData.xp + xpAmount,
-                maxAdvanceUnlocked: Math.floor((conquistaData.xp + xpAmount) / 100),
-                advancesProgress: {
-                  ...conquistaData.advancesProgress,
-                  [currentAdvance.id]: {
-                    ...conquistaData.advancesProgress[currentAdvance.id],
-                    completed: true
-                  }
+      return {
+        ...prev,
+        vivencias: {
+          ...prev.vivencias,
+          [activeVivencia]: {
+            ...vivenciaData,
+            [activeConquista]: {
+              ...conquistaData,
+              xp: conquistaData.xp + xpAmount,
+              advancesProgress: {
+                ...conquistaData.advancesProgress,
+                [`${currentDay}-${currentAdvance.id}`]: {
+                  ...conquistaData.advancesProgress[
+                    `${currentDay}-${currentAdvance.id}`
+                  ],
+                  completed: true
                 }
               }
             }
           }
         }
-
+      }
     })
   }
 
@@ -142,7 +143,43 @@ function App() {
   }, [currentAdvanceIndex, activeVivencia, activeConquista])
 
   // =============================
-  // 6️⃣ Cálculo visual de progreso
+  // 🔁 Motor automático de día
+  // =============================
+  useEffect(() => {
+    if (!isDayCompleted) return
+    if (currentDay !== maxDayUnlocked) return
+
+    setPlayer((prev) => {
+      const vivenciaData = prev.vivencias[activeVivencia]
+      const conquistaData = vivenciaData[activeConquista]
+
+      if (conquistaData.currentDay !== currentDay) return prev
+
+      const nextDay = currentDay + 1
+
+      return {
+        ...prev,
+        vivencias: {
+          ...prev.vivencias,
+          [activeVivencia]: {
+            ...vivenciaData,
+            [activeConquista]: {
+              ...conquistaData,
+              currentDay: nextDay,
+              maxDayUnlocked: Math.max(
+                conquistaData.maxDayUnlocked ?? 1,
+                nextDay
+              ),
+              currentAdvanceIndex: 0
+            }
+          }
+        }
+      }
+    })
+  }, [isDayCompleted])
+
+  // =============================
+  // 6️⃣ Progreso visual
   // =============================
   const level = Math.floor(xp / 100) + 1
   const currentLevelXP = xp % 100
@@ -150,17 +187,8 @@ function App() {
 
   const changeAdvance = (newIndex) => {
     setPlayer((prev) => {
-      const vivenciaData = prev.vivencias[activeVivencia] || {}
-      const conquistaData =
-        vivenciaData[activeConquista] || {
-          xp: 0,
-          daysInLevel: 0,
-          currentAdvanceIndex: 0,
-          maxAdvanceUnlocked: 0,
-          completedAdvances: []
-        }
-
-      const prevMax = conquistaData.maxAdvanceUnlocked ?? 0
+      const vivenciaData = prev.vivencias[activeVivencia]
+      const conquistaData = vivenciaData[activeConquista]
 
       return {
         ...prev,
@@ -171,7 +199,39 @@ function App() {
             [activeConquista]: {
               ...conquistaData,
               currentAdvanceIndex: newIndex,
-              maxAdvanceUnlocked: Math.max(prevMax, newIndex)
+              currentAdvanceIndexByDay: {
+                ...conquistaData.currentAdvanceIndexByDay,
+                [currentDay]: newIndex
+              },
+              maxAdvanceUnlocked: Math.max(
+                conquistaData.maxAdvanceUnlocked ?? 0,
+                newIndex
+              )
+            }
+          }
+        }
+      }
+    })
+  }
+
+  const changeDay = (day) => {
+    setPlayer((prev) => {
+      const vivenciaData = prev.vivencias[activeVivencia]
+      const conquistaData = vivenciaData[activeConquista]
+
+      const savedIndex =
+        conquistaData.currentAdvanceIndexByDay?.[day] ?? 0
+
+      return {
+        ...prev,
+        vivencias: {
+          ...prev.vivencias,
+          [activeVivencia]: {
+            ...vivenciaData,
+            [activeConquista]: {
+              ...conquistaData,
+              currentDay: day,
+              currentAdvanceIndex: savedIndex
             }
           }
         }
@@ -191,9 +251,7 @@ function App() {
         newIndex < 0 ||
         oldIndex >= currentOrder.length ||
         newIndex >= currentOrder.length
-      ) {
-        return prev
-      }
+      ) return prev
 
       const newOrder = [...currentOrder]
       const [movedItem] = newOrder.splice(oldIndex, 1)
@@ -222,14 +280,6 @@ function App() {
       const vivenciaData = prev.vivencias[activeVivencia]
       const conquistaData = vivenciaData[activeConquista]
 
-      const updatedAdvancesProgress = {
-        ...conquistaData.advancesProgress,
-        [currentAdvance.id]: {
-          ...conquistaData.advancesProgress[currentAdvance.id],
-          started: true
-        }
-      }
-
       return {
         ...prev,
         vivencias: {
@@ -238,7 +288,15 @@ function App() {
             ...vivenciaData,
             [activeConquista]: {
               ...conquistaData,
-              advancesProgress: updatedAdvancesProgress
+              advancesProgress: {
+                ...conquistaData.advancesProgress,
+                [`${currentDay}-${currentAdvance.id}`]: {
+                  ...conquistaData.advancesProgress[
+                    `${currentDay}-${currentAdvance.id}`
+                  ],
+                  started: true
+                }
+              }
             }
           }
         }
@@ -246,12 +304,8 @@ function App() {
     })
   }
 
-  // =============================
-  // 7️⃣ Render
-  // =============================
   return (
     <div style={{ padding: "20px" }}>
-
       <Header
         vivenciasList={vivenciasList}
         conquistasList={conquistasList}
@@ -266,10 +320,11 @@ function App() {
         onMoveAdvance={moveAdvance}
         advancesProgress={levelState?.advancesProgress}
         currentDay={currentDay}
+        maxDayUnlocked={maxDayUnlocked}
+        onChangeDay={changeDay}
       />
 
       <div className="dashboard-row">
-
         <AdvancePanel
           currentAdvance={currentAdvance}
           activeVivencia={activeVivencia}
@@ -290,14 +345,12 @@ function App() {
             onGainXp={() => completeMission(10)}
           />
         </div>
-
       </div>
 
       <MissionsPanel
         missions={missions}
         onComplete={completeMission}
       />
-
     </div>
   )
 }

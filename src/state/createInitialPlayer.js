@@ -13,6 +13,23 @@ export function createInitialPlayer() {
 
       const advancesProgress = {}
 
+      const totalDays =
+        CONTENT[vivencia][level]?.meta?.minDaysRequired ?? 7
+
+      for (let day = 1; day <= totalDays; day++) {
+        advances.forEach((advance) => {
+          const dayAdvanceKey = `${day}-${advance.id}`
+
+          advancesProgress[dayAdvanceKey] = {
+            started: false,
+            completed: false,
+            validationPassed: false,
+            attempts: 0,
+            quizScore: 0
+          }
+        })
+      }
+
       advances.forEach((advance) => {
         advancesProgress[advance.id] = {
           started: false,
@@ -30,7 +47,9 @@ export function createInitialPlayer() {
         xp: 0,
         daysInLevel: 0,
         currentDay: 1,
+        maxDayUnlocked: 1,
         currentAdvanceIndex: 0,
+        currentAdvanceIndexByDay: {},
         maxAdvanceUnlocked: 0,
         completedAdvances: [],
         weakAreas: {
