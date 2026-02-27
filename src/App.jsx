@@ -6,6 +6,7 @@ import Header from "./components/Header"
 import AdvancePanel from "./components/AdvancePanel.jsx"
 import { createInitialPlayer } from "./state/createInitialPlayer"
 import { resolvePassingScore } from "./engine/passingScoreEngine.js"
+import { resolveEvaluationMessage } from "./engine/evaluationMessageEngine"
 
 function App() {
 
@@ -41,6 +42,15 @@ console.log("Day Exams:", levelState?.dayExams)
 
   const currentDay = levelState?.currentDay ?? 1
 
+  const isFinalEvaluationDay =
+    currentDay === "final-evaluation"
+
+  // =============================
+  // 🟣 Conquista Final Exam Aprobada
+  // =============================
+  const isConquistaFinalExamPassed =
+    levelState?.finalExam?.passed === true
+    
   const maxDayUnlocked =
     Math.max(levelState?.maxDayUnlocked ?? 1, currentDay)
 
@@ -567,6 +577,49 @@ console.log(
   }
 
   // =============================
+  // 🟣 E3 — Submit Conquista Final Exam
+  // =============================
+  const handleSubmitFinalExam = () => {
+    const score = Number(examScore)
+
+    if (isNaN(score)) return
+
+    const finalExamPassingScore =
+      CONTENT[activeVivencia]?.[activeConquista]?.meta?.finalExamPassingScore
+
+    const passed = score >= finalExamPassingScore
+
+    setPlayer((prev) => {
+      const vivenciaData = prev.vivencias[activeVivencia]
+      const conquistaData = vivenciaData[activeConquista]
+
+      const currentFinalExam = conquistaData.finalExam
+
+      return {
+        ...prev,
+        vivencias: {
+          ...prev.vivencias,
+          [activeVivencia]: {
+            ...vivenciaData,
+            [activeConquista]: {
+              ...conquistaData,
+              finalExam: {
+                ...currentFinalExam,
+                attempts: currentFinalExam.attempts + 1,
+                score,
+                passed
+              }
+            }
+          }
+        }
+      }
+    })
+
+    setExamScore("")
+    setIsAdvanceRunning(false)
+  }
+
+  // =============================
   // 🧪 Debug: completar día actual
   // =============================
   const debugCompleteDay = () => {
@@ -644,6 +697,30 @@ console.log(
     })
   }
 
+// =============================
+// 🟣 Evaluation Message Resolver
+// =============================
+const evaluationMessageData =
+  currentDay === "final-evaluation"
+    ? resolveEvaluationMessage({
+        evaluationType: "conquest",
+        vivenciaId: activeVivencia,
+        conquistaId: activeConquista,
+        levelState
+      })
+    : shouldShowDayEvaluation
+    ? resolveEvaluationMessage({
+        evaluationType: "day",
+        vivenciaId: activeVivencia,
+        conquistaId: activeConquista,
+        levelState
+      })
+    : null
+
+const evaluationMessage =
+  evaluationMessageData?.fallback ?? null
+
+  //RENDERIZA
   return (
     <div style={{ padding: "20px" }}>
 
@@ -668,6 +745,7 @@ console.log(
         totalDays={minDaysRequired}
         levelState={levelState}
         isConquistaReadyForFinalExam={isConquistaReadyForFinalExam}
+        evaluationMessage={evaluationMessage}
       />
 
       {/* Pruebas MIG */}
@@ -704,6 +782,12 @@ console.log(
           examScore={examScore}
           setExamScore={setExamScore}
           handleSubmitDayExam={handleSubmitDayExam}
+          handleSubmitFinalExam={handleSubmitFinalExam}
+          isFinalEvaluationDay={isFinalEvaluationDay}
+          vivenciasList={vivenciasList}
+          conquistasList={conquistasList}
+          setActiveVivencia={setActiveVivencia}
+          setActiveConquista={setActiveConquista}
         />
 
         <div className="player-wrapper">

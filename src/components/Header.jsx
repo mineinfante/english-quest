@@ -11,6 +11,7 @@ import {
 
 import { CSS } from "@dnd-kit/utilities"
 import { CONTENT } from "../content"
+import EvaluationMessagePanel from "./EvaluationMessagePanel"
 
 function SortableAdvanceButton({
   id,
@@ -133,7 +134,8 @@ export default function Header({
   getDayStatus,
   totalDays,
   levelState,
-  isConquistaReadyForFinalExam
+  isConquistaReadyForFinalExam,
+  evaluationMessage
 }) {
 
   return (
@@ -192,6 +194,24 @@ export default function Header({
               ].map((day) => {
               const isFinal = day === "final-evaluation"
 
+              const finalExam = levelState?.finalExam
+
+              let status
+
+              if (isFinal) {
+                if (!finalExam) {
+                  status = "locked"
+                } else if (finalExam.passed) {
+                  status = "completed"
+                } else if (finalExam.attempts > 0) {
+                  status = "started"
+                } else {
+                  status = "active"
+                }
+              } else {
+                status = getDayStatus(day)
+              }
+
               const isLocked = isFinal
                 ? false
                 : day > maxDayUnlocked
@@ -200,8 +220,6 @@ export default function Header({
                 ? currentDay === "final-evaluation"
                 : day === currentDay
                 
-              const status = getDayStatus ? getDayStatus(day) : "idle"
-
               return (
                 <button
                   key={day}
@@ -346,27 +364,11 @@ export default function Header({
        </div>
       )}
 
-      {currentDay === "final-evaluation" && (
-        <div
-          style={{
-            marginTop: "14px",
-            padding: "18px",
-            borderRadius: "14px",
-            background: "linear-gradient(135deg, rgba(139,92,246,0.25), rgba(34,197,94,0.20))",
-            border: "1px solid rgba(255,255,255,0.15)"
-          }}
-        >
-          <h3 style={{ marginBottom: "8px" }}>
-            Es momento de tu Evaluación Final.
-          </h3>
-
-          <p style={{ opacity: 0.9, lineHeight: "1.6" }}>
-            Has completado todos los días requeridos.
-            Ahora demostrarás tu progreso real.
-            Respira, concéntrate y recuerda que esta evaluación
-            representa tu crecimiento.
-          </p>
-        </div>
+      {currentDay === "final-evaluation" && evaluationMessage && (
+        <EvaluationMessagePanel
+          title={evaluationMessage.title}
+          message={evaluationMessage.message}
+        />
       )}
     </div>
   )
