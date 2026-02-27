@@ -55,12 +55,12 @@ const VIVENCIAS_CONFIG = [
 ]
 
 const CONQUISTAS_CONFIG = [
-  { id: "A1", name: "Discovery", cefr: "A1" },
-  { id: "A2", name: "Functional", cefr: "A2" },
-  { id: "B1", name: "Comprehension", cefr: "B1" },
-  { id: "B2", name: "Confidence", cefr: "B2" },
-  { id: "C1", name: "Experience", cefr: "C1" },
-  { id: "C2", name: "Identity", cefr: "C2" }
+  { id: "A1", name: "Discovery", cefr: "A1", minDays: 7 },
+  { id: "A2", name: "Functional", cefr: "A2", minDays: 10 },
+  { id: "B1", name: "Comprehension", cefr: "B1", minDays: 5 },
+  { id: "B2", name: "Confidence", cefr: "B2", minDays: 8 },
+  { id: "C1", name: "Experience", cefr: "C1", minDays: 9 },
+  { id: "C2", name: "Identity", cefr: "C2", minDays: 15 }
 ]
 
 const A1_TEMPLATE = [
@@ -199,7 +199,9 @@ function generateContent() {
       content[vivencia.id][conquista.id] = {
         meta: {
           name: conquista.name,
-          minDaysRequired: 3,
+          //Mínimo 7 días por conquista, cada día debes cumplir todos los avances
+          //minDaysRequired: 7,
+          minDaysRequired: conquista.minDays,
           requiredXP: 50
         },
         advances: generateAdvancesForLevel({

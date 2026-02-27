@@ -113,6 +113,30 @@ function App() {
     return "idle"
   }
 
+  // =============================
+  // 🟣 Conquista completada
+  // =============================
+  const minDaysRequired =
+    CONTENT[activeVivencia]?.[activeConquista]?.meta?.minDaysRequired ?? 1
+
+  const isConquistaCompleted =
+    levelState &&
+    Array.from({ length: minDaysRequired }, (_, i) => i + 1).every((day) => {
+      return advances.every((advance) => {
+        const progress =
+          levelState?.advancesProgress?.[
+            `${day}-${advance.id}`
+          ]
+        return progress?.completed === true
+      })
+    })
+
+
+
+console.log("Conquista completed:", isConquistaCompleted)
+
+
+
   const xp = levelState?.xp ?? 0
 
   const vivenciasList = Object.keys(CONTENT)
@@ -179,6 +203,11 @@ function App() {
   useEffect(() => {
     if (!isDayCompleted) return
     if (currentDay !== maxDayUnlocked) return
+
+    const minDaysRequired =
+      CONTENT[activeVivencia]?.[activeConquista]?.meta?.minDaysRequired ?? 1
+
+    if (currentDay >= minDaysRequired) return
 
     setPlayer((prev) => {
       const vivenciaData = prev.vivencias[activeVivencia]
@@ -335,8 +364,61 @@ function App() {
     })
   }
 
+  // =============================
+  // 🧪 Debug: completar día actual
+  // =============================
+  const debugCompleteDay = () => {
+    setPlayer((prev) => {
+      const vivenciaData = prev.vivencias[activeVivencia]
+      const conquistaData = vivenciaData[activeConquista]
+
+      const updatedProgress = { ...conquistaData.advancesProgress }
+
+      advances.forEach((advance) => {
+        const key = `${currentDay}-${advance.id}`
+
+        updatedProgress[key] = {
+          ...updatedProgress[key],
+          started: true,
+          completed: true
+        }
+      })
+
+      return {
+        ...prev,
+        vivencias: {
+          ...prev.vivencias,
+          [activeVivencia]: {
+            ...vivenciaData,
+            [activeConquista]: {
+              ...conquistaData,
+              advancesProgress: updatedProgress
+            }
+          }
+        }
+      }
+    })
+  }
+
   return (
     <div style={{ padding: "20px" }}>
+
+      //Pruebas MIG
+      <button
+        onClick={debugCompleteDay}
+        style={{
+          marginBottom: "10px",
+          padding: "6px 12px",
+          background: "#ef4444",
+          color: "white",
+          border: "none",
+          borderRadius: "6px",
+          cursor: "pointer"
+        }}
+      >
+        🧪 Debug: Complete Current Day
+      </button>
+
       <Header
         vivenciasList={vivenciasList}
         conquistasList={conquistasList}
@@ -354,6 +436,7 @@ function App() {
         maxDayUnlocked={maxDayUnlocked}
         onChangeDay={changeDay}
         getDayStatus={getDayStatus}
+        totalDays={minDaysRequired}
       />
 
       <div className="dashboard-row">

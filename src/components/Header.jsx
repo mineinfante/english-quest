@@ -116,7 +116,8 @@ export default function Header({
   currentDay,
   maxDayUnlocked,
   onChangeDay,
-  getDayStatus
+  getDayStatus,
+  totalDays
 }) {
 
   return (
@@ -168,7 +169,7 @@ export default function Header({
         <span className="header-label">Días</span>
         <div className="tabs-container tabs-dias">
           <div style={{ margin: "0 auto", display: "flex", gap: "8px" }}>
-            {[1,2,3,4,5,6,7].map((day) => {
+            {Array.from({ length: totalDays }, (_, i) => i + 1).map((day) => {
               const isLocked = day > maxDayUnlocked
               const isActive = day === currentDay
               const status = getDayStatus ? getDayStatus(day) : "idle"
