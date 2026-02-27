@@ -8,11 +8,100 @@ export default function AdvancePanel({
   advanceProgress,
   onStartAdvance,
   manualScore,
-  setManualScore
+  setManualScore,
+  isDayEvaluation,
+  examScore,
+  setExamScore,
+  handleSubmitDayExam
 }) {
 
   if (!currentAdvance) {
     return null
+  }
+
+  if (isDayEvaluation) {
+    return (
+      <div className={`advance-card fade-container ${isAdvanceRunning ? "workspace" : "summary"}`}>
+
+        {!isAdvanceRunning && (
+          <>
+            <h2 className="advance-title">
+              Day Final Exam
+            </h2>
+
+            <div className="advance-content">
+              <p>
+                This is the official evaluation of the day.
+              </p>
+
+              <div style={{ marginTop: "20px" }}>
+                <button
+                  className="tab-button active"
+                  onClick={() => setIsAdvanceRunning(true)}
+                >
+                  Start Exam
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {isAdvanceRunning && (
+          <>
+            <h2 className="advance-title">
+              Day Final Exam
+            </h2>
+
+            <div className="advance-content">
+
+              <p style={{ opacity: 0.7 }}>
+                Submit your final score for this day.
+              </p>
+
+              <div style={{ marginTop: "20px" }}>
+                <label style={{ display: "block", marginBottom: "6px" }}>
+                  Exam Score (0–100)
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={examScore}
+                  onChange={(e) => setExamScore(e.target.value)}
+                  style={{
+                    padding: "6px",
+                    borderRadius: "6px",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    background: "rgba(255,255,255,0.05)",
+                    color: "white",
+                    width: "100%"
+                  }}
+                />
+              </div>
+
+              <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+                <button
+                  className="tab-button active"
+                  onClick={handleSubmitDayExam}
+                >
+                  Submit Exam
+                </button>
+
+                <button
+                  className="tab-button"
+                  onClick={() => setIsAdvanceRunning(false)}
+                >
+                  Back
+                </button>
+              </div>
+
+            </div>
+          </>
+        )}
+
+      </div>
+    )
   }
 
   const isStarted = advanceProgress?.started === true
@@ -24,7 +113,7 @@ export default function AdvancePanel({
       {!isAdvanceRunning && (
         <>
           <h2 className="advance-title">
-            Advance Preview
+            {isDayEvaluation ? "Day Final Exam" : "Advance Preview"}
           </h2>
 
           <div className="advance-content">

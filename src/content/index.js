@@ -207,6 +207,7 @@ function generateContent() {
           minDaysRequired: conquista.minDays,
           requiredXP: 50,
           passingScore: 75,
+          dayExamPassingScore: 80,
           finalExamPassingScore: 85
         },
         

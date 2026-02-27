@@ -36,11 +36,18 @@ function SortableAdvanceButton({
     gap: "6px"
   }
 
-  const isStarted = progress?.started && !progress?.finished
-  const isFinished = progress?.finished
-  const isPassed = progress?.finished && progress?.passed
-  const isFailed = progress?.finished && !progress?.passed
+  const isExam = progress && "attempts" in progress
 
+  const isStarted = !isExam && progress?.started && !progress?.finished
+
+  const isPassed = isExam
+    ? progress?.passed === true
+    : progress?.finished && progress?.passed
+
+  const isFailed = isExam
+    ? progress?.attempts > 0 && progress?.passed === false
+    : progress?.finished && !progress?.passed
+    
   return (
     <div
       ref={setNodeRef}
@@ -119,6 +126,7 @@ export default function Header({
   onChangeAdvance,
   onMoveAdvance,
   advancesProgress,
+  dayExams,
   currentDay,
   maxDayUnlocked,
   onChangeDay,
@@ -285,11 +293,18 @@ export default function Header({
               strategy={horizontalListSortingStrategy}
             >
               {advances.map((advance, index) => {
-                const isActive = index === currentAdvanceIndex
-                const progress =
-                  advancesProgress?.[
-                    `${currentDay}-${advance.id}`
-                  ]
+                const isActive = index === currentAdvanceIndex;
+
+                let progress;
+
+                if (advance.id === "day-evaluation") {
+                  progress = dayExams?.[currentDay];
+                } else {
+                  progress =
+                    advancesProgress?.[
+                      `${currentDay}-${advance.id}`
+                    ];
+                }
 
                 return (
                   <SortableAdvanceButton
@@ -300,7 +315,7 @@ export default function Header({
                     progress={progress}
                     onClick={() => onChangeAdvance(index)}
                   />
-                )
+                );
               })}
             </SortableContext>
           </DndContext>

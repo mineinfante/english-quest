@@ -25,6 +25,7 @@ function App() {
   const [activeConquista, setActiveConquista] = useState("A1")
   const [isAdvanceRunning, setIsAdvanceRunning] = useState(false)
   const [manualScore, setManualScore] = useState("")
+  const [examScore, setExamScore] = useState("")
 
   // =============================
   // 3️⃣ Derivados
@@ -32,6 +33,10 @@ function App() {
   const levelState =
     player.vivencias[activeVivencia]?.[activeConquista]
 
+  const dayExamPassingScore =
+    CONTENT[activeVivencia]?.[activeConquista]?.meta?.dayExamPassingScore
+
+console.log("Day Exam Passing Score:", dayExamPassingScore)    
 console.log("Day Exams:", levelState?.dayExams)
 
   const currentDay = levelState?.currentDay ?? 1
@@ -62,26 +67,6 @@ console.log("Day Exams:", levelState?.dayExams)
           )
           .filter(Boolean)
       : contentAdvances
-
-  const currentAdvance =
-    advances[currentAdvanceIndex] ?? null
-
-  const advanceProgress =
-    currentAdvance
-      ? levelState?.advancesProgress?.[
-          `${currentDay}-${currentAdvance.id}`
-        ]
-      : null
-
-  const passingScore = currentAdvance
-    ? resolvePassingScore({
-        vivenciaId: activeVivencia,
-        conquistaId: activeConquista,
-        advanceId: currentAdvance.id
-      })
-    : null
-
-    console.log("Resolved Passing Score:", passingScore)
 
   // =============================
   // 🟣 Día completado
@@ -117,8 +102,30 @@ console.log("Day Exams:", levelState?.dayExams)
       ]
     : advances
 
+  const currentAdvance =
+    derivedAdvances[currentAdvanceIndex] ?? null
 
-    // =============================
+  const isDayEvaluation =
+    currentAdvance?.id === "day-evaluation"
+
+  const advanceProgress =
+    currentAdvance
+      ? levelState?.advancesProgress?.[
+          `${currentDay}-${currentAdvance.id}`
+        ]
+      : null
+
+  const passingScore = currentAdvance
+    ? resolvePassingScore({
+        vivenciaId: activeVivencia,
+        conquistaId: activeConquista,
+        advanceId: currentAdvance.id
+      })
+    : null
+
+    console.log("Resolved Passing Score:", passingScore)
+
+  // =============================
   // 🔵 Estado por día (visual)
   // =============================
   const getDayStatus = (day) => {
@@ -292,7 +299,7 @@ console.log("Conquista completed:", isConquistaCompleted)
         }
       }
     })
-  }, [isDayCompleted])
+  }, [isDayCompleted, levelState, currentDay])
 
   // =============================
   // 🟣 E2 — Unlock Day Exam
@@ -459,6 +466,47 @@ console.log("Conquista completed:", isConquistaCompleted)
     })
   }
 
+  const handleSubmitDayExam = () => {
+    const score = Number(examScore)
+
+    if (isNaN(score)) return
+
+    const passed = score >= dayExamPassingScore
+
+    setPlayer((prev) => {
+      const vivenciaData = prev.vivencias[activeVivencia]
+      const conquistaData = vivenciaData[activeConquista]
+
+      const currentExam =
+        conquistaData.dayExams[currentDay]
+
+      return {
+        ...prev,
+        vivencias: {
+          ...prev.vivencias,
+          [activeVivencia]: {
+            ...vivenciaData,
+            [activeConquista]: {
+              ...conquistaData,
+              dayExams: {
+                ...conquistaData.dayExams,
+                [currentDay]: {
+                  ...currentExam,
+                  attempts: currentExam.attempts + 1,
+                  score,
+                  passed
+                }
+              }
+            }
+          }
+        }
+      }
+    })
+
+    setExamScore("")
+    setIsAdvanceRunning(false)
+  }
+
   // =============================
   // 🧪 Debug: completar día actual
   // =============================
@@ -528,6 +576,7 @@ console.log("Conquista completed:", isConquistaCompleted)
         onChangeAdvance={changeAdvance}
         onMoveAdvance={moveAdvance}
         advancesProgress={levelState?.advancesProgress}
+        dayExams={levelState?.dayExams}
         currentDay={currentDay}
         maxDayUnlocked={maxDayUnlocked}
         onChangeDay={changeDay}
@@ -547,6 +596,10 @@ console.log("Conquista completed:", isConquistaCompleted)
           onStartAdvance={handleStartAdvance}
           manualScore={manualScore}
           setManualScore={setManualScore}
+          isDayEvaluation={isDayEvaluation}
+          examScore={examScore}
+          setExamScore={setExamScore}
+          handleSubmitDayExam={handleSubmitDayExam}
         />
 
         <div className="player-wrapper">
