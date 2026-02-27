@@ -69,6 +69,24 @@ console.log("Day Exams:", levelState?.dayExams)
       : contentAdvances
 
   // =============================
+  // 🟣 Conquista completada
+  // =============================
+  const minDaysRequired =
+    CONTENT[activeVivencia]?.[activeConquista]?.meta?.minDaysRequired ?? 1
+
+  const isConquistaCompleted =
+    levelState &&
+    Array.from({ length: minDaysRequired }, (_, i) => i + 1).every((day) => {
+      return advances.every((advance) => {
+        const progress =
+          levelState?.advancesProgress?.[
+            `${day}-${advance.id}`
+          ]
+        return progress?.finished && progress?.passed
+      })
+    })
+
+  // =============================
   // 🟣 Día completado
   // =============================
   const isDayCompleted =
@@ -91,22 +109,50 @@ console.log("Day Exams:", levelState?.dayExams)
   const shouldShowDayEvaluation =
     levelState?.dayExams?.[currentDay]?.unlocked === true
 
-  const derivedAdvances = shouldShowDayEvaluation
-    ? [
-        ...advances,
-        {
-          id: "day-evaluation",
-          title: "Evaluación",
-          dynamic: true
-        }
-      ]
-    : advances
+  // =============================
+  // 🟣 E3 — Conquista Ready For Final Exam
+  // =============================
+  const isConquistaReadyForFinalExam =
+    levelState &&
+    Array.from({ length: minDaysRequired }, (_, i) => i + 1).every((day) => {
+      return levelState?.dayExams?.[day]?.passed === true
+    })
+
+console.log("E3 Ready:", isConquistaReadyForFinalExam)
+
+
+  // =============================
+  // 🟣 Derived Advances (E2 + E3)
+  // =============================
+  let derivedAdvances = [...advances]
+
+  // E2 — Día evaluation
+  if (shouldShowDayEvaluation) {
+    derivedAdvances = [
+      ...derivedAdvances,
+      {
+        id: "day-evaluation",
+        title: "Evaluación",
+        dynamic: true
+      }
+    ]
+  }
+
+
+console.log(
+  "Derived Advances IDs:",
+  derivedAdvances.map(a => a.id)
+)
+
 
   const currentAdvance =
     derivedAdvances[currentAdvanceIndex] ?? null
 
   const isDayEvaluation =
     currentAdvance?.id === "day-evaluation"
+
+  const isConquistaEvaluation =
+    currentAdvance?.id === "conquista-evaluation"
 
   const advanceProgress =
     currentAdvance
@@ -155,30 +201,6 @@ console.log("Day Exams:", levelState?.dayExams)
 
     return "idle"
   }
-
-  // =============================
-  // 🟣 Conquista completada
-  // =============================
-  const minDaysRequired =
-    CONTENT[activeVivencia]?.[activeConquista]?.meta?.minDaysRequired ?? 1
-
-  const isConquistaCompleted =
-    levelState &&
-    Array.from({ length: minDaysRequired }, (_, i) => i + 1).every((day) => {
-      return advances.every((advance) => {
-        const progress =
-          levelState?.advancesProgress?.[
-            `${day}-${advance.id}`
-          ]
-        return progress?.finished && progress?.passed
-      })
-    })
-
-
-
-console.log("Conquista completed:", isConquistaCompleted)
-
-
 
   const xp = levelState?.xp ?? 0
 
@@ -339,6 +361,43 @@ console.log("Conquista completed:", isConquistaCompleted)
       }
     })
   }, [isDayCompleted, currentDay, activeVivencia, activeConquista])
+
+  // =============================
+  // 🟣 E3 — Unlock Conquista Final Exam
+  // =============================
+  useEffect(() => {
+    if (!isConquistaReadyForFinalExam) return
+    if (levelState?.finalExam?.unlocked) return
+
+    setPlayer((prev) => {
+      const vivenciaData = prev.vivencias[activeVivencia]
+      const conquistaData = vivenciaData[activeConquista]
+
+      if (conquistaData.finalExam.unlocked) return prev
+
+      return {
+        ...prev,
+        vivencias: {
+          ...prev.vivencias,
+          [activeVivencia]: {
+            ...vivenciaData,
+            [activeConquista]: {
+              ...conquistaData,
+              finalExam: {
+                ...conquistaData.finalExam,
+                unlocked: true
+              }
+            }
+          }
+        }
+      }
+    })
+  }, [
+    isConquistaReadyForFinalExam,
+    activeVivencia,
+    activeConquista,
+    levelState
+  ])
 
   // =============================
   // 6️⃣ Progreso visual
@@ -544,24 +603,49 @@ console.log("Conquista completed:", isConquistaCompleted)
     })
   }
 
+  // =============================
+  // 🧪 Debug: completar conquista actual
+  // =============================
+  const debugCompleteConquest = () => {
+    setPlayer((prev) => {
+      const vivenciaData = prev.vivencias[activeVivencia]
+      const conquistaData = vivenciaData[activeConquista]
+
+      const minDaysRequired =
+        CONTENT[activeVivencia]?.[activeConquista]?.meta?.minDaysRequired ?? 1
+
+      const updatedDayExams = { ...conquistaData.dayExams }
+
+      for (let day = 1; day <= minDaysRequired; day++) {
+        updatedDayExams[day] = {
+          ...updatedDayExams[day],
+          unlocked: true,
+          passed: true,
+          attempts: 1,
+          score: 100
+        }
+      }
+
+      return {
+        ...prev,
+        vivencias: {
+          ...prev.vivencias,
+          [activeVivencia]: {
+            ...vivenciaData,
+            [activeConquista]: {
+              ...conquistaData,
+              currentDay: minDaysRequired,
+              maxDayUnlocked: minDaysRequired,
+              dayExams: updatedDayExams
+            }
+          }
+        }
+      }
+    })
+  }
+
   return (
     <div style={{ padding: "20px" }}>
-
-      //Pruebas MIG
-      <button
-        onClick={debugCompleteDay}
-        style={{
-          marginBottom: "10px",
-          padding: "6px 12px",
-          background: "#ef4444",
-          color: "white",
-          border: "none",
-          borderRadius: "6px",
-          cursor: "pointer"
-        }}
-      >
-        🧪 Debug: Complete Current Day
-      </button>
 
       <Header
         vivenciasList={vivenciasList}
@@ -582,7 +666,27 @@ console.log("Conquista completed:", isConquistaCompleted)
         onChangeDay={changeDay}
         getDayStatus={getDayStatus}
         totalDays={minDaysRequired}
+        levelState={levelState}
+        isConquistaReadyForFinalExam={isConquistaReadyForFinalExam}
       />
+
+      {/* Pruebas MIG */}
+      {/* Debug Controls */}
+      <div className="debug-controls">
+        <button
+          className="tab-button debug-day"
+          onClick={debugCompleteDay}
+        >
+          Complete Current Day
+        </button>
+
+        <button
+          className="tab-button debug-conquest"
+          onClick={debugCompleteConquest}
+        >
+          Complete Current Conquest
+        </button>
+      </div>
 
       <div className="dashboard-row">
         <AdvancePanel

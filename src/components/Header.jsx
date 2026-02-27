@@ -131,7 +131,9 @@ export default function Header({
   maxDayUnlocked,
   onChangeDay,
   getDayStatus,
-  totalDays
+  totalDays,
+  levelState,
+  isConquistaReadyForFinalExam
 }) {
 
   return (
@@ -183,9 +185,21 @@ export default function Header({
         <span className="header-label">Días</span>
         <div className="tabs-container tabs-dias">
           <div style={{ margin: "0 auto", display: "flex", gap: "8px" }}>
-            {Array.from({ length: totalDays }, (_, i) => i + 1).map((day) => {
-              const isLocked = day > maxDayUnlocked
-              const isActive = day === currentDay
+            {
+              [
+                ...Array.from({ length: totalDays }, (_, i) => i + 1),
+                ...(isConquistaReadyForFinalExam ? ["final-evaluation"] : [])
+              ].map((day) => {
+              const isFinal = day === "final-evaluation"
+
+              const isLocked = isFinal
+                ? false
+                : day > maxDayUnlocked
+
+              const isActive = isFinal
+                ? currentDay === "final-evaluation"
+                : day === currentDay
+                
               const status = getDayStatus ? getDayStatus(day) : "idle"
 
               return (
@@ -198,11 +212,17 @@ export default function Header({
                     position: "relative"
                   }}
                   onClick={() => {
-                    if (!isLocked) onChangeDay(day)
+                    if (isLocked) return
+
+                    if (isFinal) {
+                      onChangeDay("final-evaluation")
+                    } else {
+                      onChangeDay(day)
+                    }
                   }}
                   disabled={isLocked}
                 >
-                  {day}
+                  {day === "final-evaluation" ? "Evaluación" : day}
 
                   {isLocked && (
                     <span
@@ -269,7 +289,8 @@ export default function Header({
       </div>
 
       {/* Avances */}
-      <div className="header-row">
+      {currentDay !== "final-evaluation" && (
+        <div className="header-row">
         <span className="header-label">Avances</span>
 
         <div className="tabs-container tabs-avances">
@@ -288,7 +309,7 @@ export default function Header({
             }}
           >
             <SortableContext
-              key={`day-${currentDay}`}
+              key={`day-${currentDay}-${advances.length}`}
               items={advances.map(a => a.id)}
               strategy={horizontalListSortingStrategy}
             >
@@ -299,6 +320,8 @@ export default function Header({
 
                 if (advance.id === "day-evaluation") {
                   progress = dayExams?.[currentDay];
+                } else if (advance.id === "conquista-evaluation") {
+                  progress = levelState?.finalExam;
                 } else {
                   progress =
                     advancesProgress?.[
@@ -320,8 +343,31 @@ export default function Header({
             </SortableContext>
           </DndContext>
         </div>
-      </div>
+       </div>
+      )}
 
+      {currentDay === "final-evaluation" && (
+        <div
+          style={{
+            marginTop: "14px",
+            padding: "18px",
+            borderRadius: "14px",
+            background: "linear-gradient(135deg, rgba(139,92,246,0.25), rgba(34,197,94,0.20))",
+            border: "1px solid rgba(255,255,255,0.15)"
+          }}
+        >
+          <h3 style={{ marginBottom: "8px" }}>
+            Es momento de tu Evaluación Final.
+          </h3>
+
+          <p style={{ opacity: 0.9, lineHeight: "1.6" }}>
+            Has completado todos los días requeridos.
+            Ahora demostrarás tu progreso real.
+            Respira, concéntrate y recuerda que esta evaluación
+            representa tu crecimiento.
+          </p>
+        </div>
+      )}
     </div>
   )
 }
