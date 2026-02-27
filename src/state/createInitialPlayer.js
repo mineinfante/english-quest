@@ -16,6 +16,18 @@ export function createInitialPlayer() {
       const totalDays =
         CONTENT[vivencia][level]?.meta?.minDaysRequired ?? 7
 
+      // 🔹 Inicializar exámenes por día (E2)
+      const dayExams = {}
+
+      for (let day = 1; day <= totalDays; day++) {
+        dayExams[day] = {
+          unlocked: false,
+          attempts: 0,
+          score: 0,
+          passed: false
+        }
+      }
+
       for (let day = 1; day <= totalDays; day++) {
         advances.forEach((advance) => {
           const dayAdvanceKey = `${day}-${advance.id}`
@@ -63,6 +75,7 @@ export function createInitialPlayer() {
           score: 0,
           passed: false
         },
+        dayExams,
         advancesOrder,       // ← agregado
         advancesProgress
       }

@@ -32,6 +32,8 @@ function App() {
   const levelState =
     player.vivencias[activeVivencia]?.[activeConquista]
 
+console.log("Day Exams:", levelState?.dayExams)
+
   const currentDay = levelState?.currentDay ?? 1
 
   const maxDayUnlocked =
@@ -99,6 +101,24 @@ function App() {
     })
 
   // =============================
+  // 🟣 E2 — Derived Day Evaluation
+  // =============================
+  const shouldShowDayEvaluation =
+    levelState?.dayExams?.[currentDay]?.unlocked === true
+
+  const derivedAdvances = shouldShowDayEvaluation
+    ? [
+        ...advances,
+        {
+          id: "day-evaluation",
+          title: "Evaluación",
+          dynamic: true
+        }
+      ]
+    : advances
+
+
+    // =============================
   // 🔵 Estado por día (visual)
   // =============================
   const getDayStatus = (day) => {
@@ -193,7 +213,7 @@ console.log("Conquista completed:", isConquistaCompleted)
       const baseXP = 7
       const bonusXP = didPass ? 3 : 0
       const totalXP = baseXP + bonusXP
-      
+
       return {
         ...prev,
         vivencias: {
@@ -237,6 +257,7 @@ console.log("Conquista completed:", isConquistaCompleted)
   // =============================
   useEffect(() => {
     if (!isDayCompleted) return
+    if (!levelState?.dayExams?.[currentDay]?.passed) return
     if (currentDay !== maxDayUnlocked) return
 
     const minDaysRequired =
@@ -272,6 +293,45 @@ console.log("Conquista completed:", isConquistaCompleted)
       }
     })
   }, [isDayCompleted])
+
+  // =============================
+  // 🟣 E2 — Unlock Day Exam
+  // =============================
+  useEffect(() => {
+    if (!isDayCompleted) return
+
+    setPlayer((prev) => {
+      const vivenciaData = prev.vivencias[activeVivencia]
+      const conquistaData = vivenciaData[activeConquista]
+
+      const currentExam =
+        conquistaData.dayExams?.[currentDay]
+
+      if (!currentExam || currentExam.unlocked) {
+        return prev
+      }
+
+      return {
+        ...prev,
+        vivencias: {
+          ...prev.vivencias,
+          [activeVivencia]: {
+            ...vivenciaData,
+            [activeConquista]: {
+              ...conquistaData,
+              dayExams: {
+                ...conquistaData.dayExams,
+                [currentDay]: {
+                  ...currentExam,
+                  unlocked: true
+                }
+              }
+            }
+          }
+        }
+      }
+    })
+  }, [isDayCompleted, currentDay, activeVivencia, activeConquista])
 
   // =============================
   // 6️⃣ Progreso visual
@@ -462,7 +522,7 @@ console.log("Conquista completed:", isConquistaCompleted)
         setActiveVivencia={setActiveVivencia}
         activeConquista={activeConquista}
         setActiveConquista={setActiveConquista}
-        advances={advances}
+        advances={derivedAdvances}
         currentAdvanceIndex={currentAdvanceIndex}
         maxAdvanceUnlocked={maxAdvanceUnlocked}
         onChangeAdvance={changeAdvance}
