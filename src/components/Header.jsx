@@ -115,7 +115,8 @@ export default function Header({
   advancesProgress,
   currentDay,
   maxDayUnlocked,
-  onChangeDay
+  onChangeDay,
+  getDayStatus
 }) {
 
   return (
@@ -170,6 +171,7 @@ export default function Header({
             {[1,2,3,4,5,6,7].map((day) => {
               const isLocked = day > maxDayUnlocked
               const isActive = day === currentDay
+              const status = getDayStatus ? getDayStatus(day) : "idle"
 
               return (
                 <button
@@ -199,6 +201,50 @@ export default function Header({
                     >
                       🔒
                     </span>
+                  )}
+
+                  {!isLocked && isActive && (
+                    <span
+                      style={{
+                        position: "absolute",
+                        bottom: "4px",
+                        right: "4px",
+                        width: "6px",
+                        height: "6px",
+                        borderRadius: "50%",
+                        background: "#22c55e",
+                        boxShadow: "0 0 6px rgba(34,197,94,0.6)"
+                      }}
+                    />
+                  )}
+
+                  {!isLocked && status === "completed" && (
+                    <span
+                      style={{
+                        position: "absolute",
+                        bottom: "4px",
+                        right: "4px",
+                        width: "6px",
+                        height: "6px",
+                        borderRadius: "50%",
+                        background: "white",
+                        boxShadow: "0 0 6px rgba(255,255,255,0.6)"
+                      }}
+                    />
+                  )}
+
+                  {!isLocked && status === "started" && !isActive && (
+                    <span
+                      style={{
+                        position: "absolute",
+                        bottom: "4px",
+                        right: "4px",
+                        width: "6px",
+                        height: "6px",
+                        borderRadius: "50%",
+                        background: "#facc15"
+                      }}
+                    />
                   )}
                 </button>
               )

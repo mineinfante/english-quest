@@ -82,6 +82,37 @@ function App() {
       return progress?.completed === true
     })
 
+  // =============================
+  // 🔵 Estado por día (visual)
+  // =============================
+  const getDayStatus = (day) => {
+    const dayAdvances = advances
+
+    if (!dayAdvances.length) return "empty"
+
+    const allCompleted = dayAdvances.every((advance) => {
+      const progress =
+        levelState?.advancesProgress?.[
+          `${day}-${advance.id}`
+        ]
+      return progress?.completed === true
+    })
+
+    if (allCompleted) return "completed"
+
+    const anyStarted = dayAdvances.some((advance) => {
+      const progress =
+        levelState?.advancesProgress?.[
+          `${day}-${advance.id}`
+        ]
+      return progress?.started === true
+    })
+
+    if (anyStarted) return "started"
+
+    return "idle"
+  }
+
   const xp = levelState?.xp ?? 0
 
   const vivenciasList = Object.keys(CONTENT)
@@ -322,6 +353,7 @@ function App() {
         currentDay={currentDay}
         maxDayUnlocked={maxDayUnlocked}
         onChangeDay={changeDay}
+        getDayStatus={getDayStatus}
       />
 
       <div className="dashboard-row">
