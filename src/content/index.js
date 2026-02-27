@@ -165,6 +165,8 @@ function generateAdvancesForLevel({ vivenciaId, levelId, context, template }) {
         maxCEFR: levelId
     },
 
+    passingScore: null, // 🔹 N1 opcional (si es null, usará N2 o N3)
+
     buildPrompt: () => `
     You are an English language mentor.
 
@@ -188,7 +190,8 @@ function generateContent() {
   VIVENCIAS_CONFIG.forEach((vivencia) => {
     content[vivencia.id] = {
       meta: {
-        name: vivencia.name
+        name: vivencia.name,
+        passingScore: 70 // 🔹 N3 default por vivencia
       }
     }
 
@@ -202,8 +205,11 @@ function generateContent() {
           //Mínimo 7 días por conquista, cada día debes cumplir todos los avances
           //minDaysRequired: 7,
           minDaysRequired: conquista.minDays,
-          requiredXP: 50
+          requiredXP: 50,
+          passingScore: 75,
+          finalExamPassingScore: 85
         },
+        
         advances: generateAdvancesForLevel({
           vivenciaId: vivencia.id,
           levelId: conquista.id,

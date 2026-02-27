@@ -6,7 +6,9 @@ export default function AdvancePanel({
   isAdvanceRunning,
   setIsAdvanceRunning,
   advanceProgress,
-  onStartAdvance
+  onStartAdvance,
+  manualScore,
+  setManualScore
 }) {
 
   if (!currentAdvance) {
@@ -74,6 +76,28 @@ export default function AdvancePanel({
               }}
             >
               User response area (coming next step)
+            </div>
+
+            <div style={{ marginTop: "20px" }}>
+              <label style={{ display: "block", marginBottom: "6px" }}>
+                Manual Quiz Score (0–100)
+              </label>
+
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={manualScore}
+                onChange={(e) => setManualScore(e.target.value)}
+                style={{
+                  padding: "6px",
+                  borderRadius: "6px",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  background: "rgba(255,255,255,0.05)",
+                  color: "white",
+                  width: "100%"
+                }}
+              />
             </div>
 
             <div style={{ marginTop: "20px" }}>

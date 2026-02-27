@@ -76,7 +76,7 @@ function SortableAdvanceButton({
         ⠿
       </span>
 
-      {(isActiveProp || isStarted || isFinished) && (
+      {(isActiveProp || isStarted || isPassed || isFailed) && (
         <span
           style={{
             position: "absolute",

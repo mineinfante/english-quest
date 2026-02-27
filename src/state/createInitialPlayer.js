@@ -57,6 +57,12 @@ export function createInitialPlayer() {
           vocabulary: {},
           functions: {}
         },
+        finalExam: {
+          unlocked: false,
+          attempts: 0,
+          score: 0,
+          passed: false
+        },
         advancesOrder,       // ← agregado
         advancesProgress
       }

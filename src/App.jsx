@@ -5,6 +5,7 @@ import { CONTENT } from "./content"
 import Header from "./components/Header"
 import AdvancePanel from "./components/AdvancePanel.jsx"
 import { createInitialPlayer } from "./state/createInitialPlayer"
+import { resolvePassingScore } from "./engine/passingScoreEngine.js"
 
 function App() {
 
@@ -23,6 +24,7 @@ function App() {
   const [activeVivencia, setActiveVivencia] = useState("family")
   const [activeConquista, setActiveConquista] = useState("A1")
   const [isAdvanceRunning, setIsAdvanceRunning] = useState(false)
+  const [manualScore, setManualScore] = useState("")
 
   // =============================
   // 3️⃣ Derivados
@@ -69,6 +71,16 @@ function App() {
         ]
       : null
 
+  const passingScore = currentAdvance
+    ? resolvePassingScore({
+        vivenciaId: activeVivencia,
+        conquistaId: activeConquista,
+        advanceId: currentAdvance.id
+      })
+    : null
+
+    console.log("Resolved Passing Score:", passingScore)
+
   // =============================
   // 🟣 Día completado
   // =============================
@@ -79,7 +91,11 @@ function App() {
         levelState?.advancesProgress?.[
           `${currentDay}-${advance.id}`
         ]
-      return progress?.finished && progress?.passed
+
+      return (
+        progress?.finished === true &&
+        progress?.passed === true
+      )
     })
 
   // =============================
@@ -159,15 +175,25 @@ console.log("Conquista completed:", isConquistaCompleted)
 
     setPlayer((prev) => {
 
-console.log("After mission:", player)
-
       const vivenciaData = prev.vivencias[activeVivencia]
       const conquistaData = vivenciaData[activeConquista]
 
+      const score = Number(manualScore)
+      if (isNaN(score)) return prev
 
-console.log("Updated advance:", `${currentDay}-${currentAdvance.id}`)
+      const requiredScore = resolvePassingScore({
+        vivenciaId: activeVivencia,
+        conquistaId: activeConquista,
+        advanceId: currentAdvance.id
+      })
 
+      const didPass = score >= requiredScore
 
+      const advanceKey = `${currentDay}-${currentAdvance.id}`
+      const baseXP = 7
+      const bonusXP = didPass ? 3 : 0
+      const totalXP = baseXP + bonusXP
+      
       return {
         ...prev,
         vivencias: {
@@ -176,15 +202,16 @@ console.log("Updated advance:", `${currentDay}-${currentAdvance.id}`)
             ...vivenciaData,
             [activeConquista]: {
               ...conquistaData,
-              xp: conquistaData.xp + xpAmount,
+              xp: conquistaData.xp + totalXP,
               advancesProgress: {
                 ...conquistaData.advancesProgress,
-                [`${currentDay}-${currentAdvance.id}`]: {
-                  ...conquistaData.advancesProgress[
-                    `${currentDay}-${currentAdvance.id}`
-                  ],
+                [advanceKey]: {
+                  ...conquistaData.advancesProgress[advanceKey],
                   finished: true,
-                  passed: true
+                  passed: didPass,
+                  quizScore: score,
+                  attempts:
+                    (conquistaData.advancesProgress[advanceKey]?.attempts || 0) + 1
                 }
               }
             }
@@ -458,6 +485,8 @@ console.log("Updated advance:", `${currentDay}-${currentAdvance.id}`)
           setIsAdvanceRunning={setIsAdvanceRunning}
           advanceProgress={advanceProgress}
           onStartAdvance={handleStartAdvance}
+          manualScore={manualScore}
+          setManualScore={setManualScore}
         />
 
         <div className="player-wrapper">
