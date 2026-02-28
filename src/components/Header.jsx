@@ -12,6 +12,7 @@ import {
 import { CSS } from "@dnd-kit/utilities"
 import { CONTENT } from "../content"
 import EvaluationMessagePanel from "./EvaluationMessagePanel"
+import { UI_TEXT } from "../config/uiText"
 
 function SortableAdvanceButton({
   id,
@@ -135,6 +136,7 @@ export default function Header({
   totalDays,
   levelState,
   isConquistaReadyForFinalExam,
+  needsReview,
   evaluationMessage
 }) {
 
@@ -190,7 +192,11 @@ export default function Header({
             {
               [
                 ...Array.from({ length: totalDays }, (_, i) => i + 1),
-                ...(isConquistaReadyForFinalExam ? ["final-evaluation"] : [])
+                ...(needsReview
+                    ? ["review-day"]
+                    : isConquistaReadyForFinalExam
+                    ? ["final-evaluation"]
+                    : [])
               ].map((day) => {
               const isFinal = day === "final-evaluation"
 
@@ -240,7 +246,12 @@ export default function Header({
                   }}
                   disabled={isLocked}
                 >
-                  {day === "final-evaluation" ? "Evaluación" : day}
+                  {day === "final-evaluation"
+                  ? UI_TEXT.en.days.assessment
+                  : day === "review-day"
+                  ? UI_TEXT.en.days.review
+                  : day
+                  }
 
                   {isLocked && (
                     <span

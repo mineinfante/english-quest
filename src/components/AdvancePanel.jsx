@@ -1,4 +1,5 @@
 import ConquestCompletionPanel from "./ConquestCompletionPanel"
+import { UI_TEXT } from "../config/uiText"
 
 export default function AdvancePanel({
   currentAdvance,
@@ -17,6 +18,7 @@ export default function AdvancePanel({
   handleSubmitDayExam,
   handleSubmitFinalExam,
   isFinalEvaluationDay,
+  needsReview,
   vivenciasList,
   conquistasList,
   setActiveVivencia,
@@ -161,7 +163,7 @@ export default function AdvancePanel({
         {!isAdvanceRunning && (
           <>
             <h2 className="advance-title">
-              Evaluación Final
+              {UI_TEXT.en.panels.finalAssessmentTitle}
             </h2>
 
             <div className="advance-content">
@@ -174,7 +176,10 @@ export default function AdvancePanel({
                   className="tab-button active"
                   onClick={() => setIsAdvanceRunning(true)}
                 >
-                  Iniciar Evaluación
+                  {needsReview
+                    ? UI_TEXT.en.buttons.review
+                    : UI_TEXT.en.buttons.startAssessment
+                  }
                 </button>
               </div>
             </div>
@@ -184,7 +189,7 @@ export default function AdvancePanel({
         {isAdvanceRunning && (
           <>
             <h2 className="advance-title">
-              Evaluación Final
+              {UI_TEXT.en.panels.finalAssessmentTitle}
             </h2>
 
             <div className="advance-content">
@@ -241,14 +246,14 @@ export default function AdvancePanel({
                   className="tab-button active"
                   onClick={handleSubmitFinalExam}
                 >
-                  Enviar Evaluación
+                  {UI_TEXT.en.buttons.submitAssessment}
                 </button>
 
                 <button
                   className="tab-button"
                   onClick={() => setIsAdvanceRunning(false)}
                 >
-                  Volver
+                  {UI_TEXT.en.buttons.back}
                 </button>
               </div>
 

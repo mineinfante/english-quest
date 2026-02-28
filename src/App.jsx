@@ -51,6 +51,11 @@ console.log("Day Exams:", levelState?.dayExams)
   const isConquistaFinalExamPassed =
     levelState?.finalExam?.passed === true
     
+  // 🟣 E3.1 — Needs Review (derived, no persistido)
+  const needsReview =
+    levelState?.finalExam?.attempts > 0 &&
+    levelState?.finalExam?.passed === false
+
   const maxDayUnlocked =
     Math.max(levelState?.maxDayUnlocked ?? 1, currentDay)
 
@@ -745,6 +750,7 @@ const evaluationMessage =
         totalDays={minDaysRequired}
         levelState={levelState}
         isConquistaReadyForFinalExam={isConquistaReadyForFinalExam}
+        needsReview={needsReview}
         evaluationMessage={evaluationMessage}
       />
 
@@ -784,6 +790,7 @@ const evaluationMessage =
           handleSubmitDayExam={handleSubmitDayExam}
           handleSubmitFinalExam={handleSubmitFinalExam}
           isFinalEvaluationDay={isFinalEvaluationDay}
+          needsReview={needsReview}
           vivenciasList={vivenciasList}
           conquistasList={conquistasList}
           setActiveVivencia={setActiveVivencia}
