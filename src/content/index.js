@@ -208,7 +208,8 @@ function generateContent() {
           requiredXP: 50,
           passingScore: 75,
           dayExamPassingScore: 80,
-          finalExamPassingScore: 85
+          finalExamPassingScore: 85,
+          reviewPassingScore: 70
         },
         
         advances: generateAdvancesForLevel({

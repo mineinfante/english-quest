@@ -62,6 +62,7 @@ export function createInitialPlayer() {
         maxDayUnlocked: 1,
         currentAdvanceIndex: 0,
         currentAdvanceIndexByDay: {},
+        currentAdvanceIndexByDay: {},
         maxAdvanceUnlocked: 0,
         completedAdvances: [],
         weakAreas: {

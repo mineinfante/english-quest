@@ -19,7 +19,8 @@ function SortableAdvanceButton({
   title,
   isActiveProp,
   progress,
-  onClick
+  onClick,
+  ...rest
 }) {
   const {
     attributes,
@@ -38,9 +39,15 @@ function SortableAdvanceButton({
     gap: "6px"
   }
 
-  const isExam = progress && "attempts" in progress
+  //const isExam = progress && "attempts" in progress
+  const isExam =
+    id === "day-evaluation" ||
+    id === "conquista-evaluation"
 
   const isStarted = !isExam && progress?.started && !progress?.finished
+console.log("ADVANCE PROGRESS:", id, progress)
+console.log("IS STARTED?", id, progress?.started)
+
 
   const isPassed = isExam
     ? progress?.passed === true
@@ -56,6 +63,7 @@ function SortableAdvanceButton({
       style={style}
       className={`tab-button ${isActiveProp ? "active" : ""}`}
       {...attributes}
+      {...rest}
     >
       {/* Click normal */}
       <button
@@ -98,14 +106,14 @@ function SortableAdvanceButton({
               ? "white"
               : isFailed
               ? "#f97316"
-              : isActiveProp
-              ? "#22c55e"
               : isStarted
               ? "#facc15"
+              : isActiveProp
+              ? "#22c55e"
               : "transparent",
             boxShadow: isPassed
               ? "0 0 6px rgba(255,255,255,0.6)"
-              : isActiveProp
+              : isActiveProp && !isStarted
               ? "0 0 6px rgba(34,197,94,0.6)"
               : "none"
           }}
@@ -137,7 +145,10 @@ export default function Header({
   levelState,
   isConquistaReadyForFinalExam,
   needsReview,
-  evaluationMessage
+  evaluationMessage,
+  activeDay,
+  setActiveDay,
+  advancesContainerRef
 }) {
 
   return (
@@ -224,7 +235,7 @@ export default function Header({
 
               const isActive = isFinal
                 ? currentDay === "final-evaluation"
-                : day === currentDay
+                : day === activeDay
                 
               return (
                 <button
@@ -322,7 +333,11 @@ export default function Header({
         <div className="header-row">
         <span className="header-label">Avances</span>
 
-        <div className="tabs-container tabs-avances">
+        <div
+          className="tabs-container tabs-avances"
+          ref={advancesContainerRef}
+        >
+
           <DndContext
             collisionDetection={closestCenter}
             onDragEnd={(event) => {
@@ -338,7 +353,7 @@ export default function Header({
             }}
           >
             <SortableContext
-              key={`day-${currentDay}-${advances.length}`}
+              key={`day-${activeDay}`}
               items={advances.map(a => a.id)}
               strategy={horizontalListSortingStrategy}
             >
@@ -348,13 +363,13 @@ export default function Header({
                 let progress;
 
                 if (advance.id === "day-evaluation") {
-                  progress = dayExams?.[currentDay];
+                  progress = dayExams?.[activeDay];
                 } else if (advance.id === "conquista-evaluation") {
                   progress = levelState?.finalExam;
                 } else {
                   progress =
                     advancesProgress?.[
-                      `${currentDay}-${advance.id}`
+                      `${activeDay}-${advance.id}`
                     ];
                 }
 
@@ -365,6 +380,7 @@ export default function Header({
                     title={advance.title}
                     isActiveProp={isActive}
                     progress={progress}
+                    data-index={index}
                     onClick={() => onChangeAdvance(index)}
                   />
                 );

@@ -6,6 +6,8 @@ export default function AdvancePanel({
   activeVivencia,
   activeConquista,
   levelState,
+  activeDay,
+  isLockedForEditing,
   isAdvanceRunning,
   setIsAdvanceRunning,
   advanceProgress,
@@ -17,8 +19,10 @@ export default function AdvancePanel({
   setExamScore,
   handleSubmitDayExam,
   handleSubmitFinalExam,
+  handleSubmitReview,
   isFinalEvaluationDay,
   needsReview,
+  isReviewDay,
   vivenciasList,
   conquistasList,
   setActiveVivencia,
@@ -30,9 +34,14 @@ export default function AdvancePanel({
   }
 
   if (isDayEvaluation) {
+    const structuralDay = activeDay
+    const examData = levelState?.dayExams?.[structuralDay]
+
+    const alreadyPassed = examData?.passed === true
+
     return (
       <div className={`advance-card fade-container ${isAdvanceRunning ? "workspace" : "summary"}`}>
-
+        
         {!isAdvanceRunning && (
           <>
             <h2 className="advance-title">
@@ -40,23 +49,36 @@ export default function AdvancePanel({
             </h2>
 
             <div className="advance-content">
-              <p>
-                This is the official evaluation of the day.
-              </p>
 
-              <div style={{ marginTop: "20px" }}>
-                <button
-                  className="tab-button active"
-                  onClick={() => setIsAdvanceRunning(true)}
-                >
-                  Start Exam
-                </button>
-              </div>
+              {alreadyPassed ? (
+                <>
+                  <p>This assessment has already been approved.</p>
+
+                  <div style={{ marginTop: "12px" }}>
+                    <p>Attempts: {examData.attempts}</p>
+                    <p>Final Score: {examData.score}</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p>This is the official evaluation of the day.</p>
+
+                  <div style={{ marginTop: "20px" }}>
+                    <button
+                      className="tab-button active"
+                      onClick={() => setIsAdvanceRunning(true)}
+                    >
+                      Start Exam
+                    </button>
+                  </div>
+                </>
+              )}
+
             </div>
           </>
         )}
 
-        {isAdvanceRunning && (
+        {isAdvanceRunning && !alreadyPassed && (
           <>
             <h2 className="advance-title">
               Day Final Exam
@@ -105,6 +127,81 @@ export default function AdvancePanel({
                   Back
                 </button>
               </div>
+
+            </div>
+          </>
+        )}
+
+      </div>
+    )
+  }
+
+  if (isReviewDay) {
+    return (
+      <div className={`advance-card fade-container ${isAdvanceRunning ? "workspace" : "summary"}`}>
+        
+        {!isAdvanceRunning && (
+          <>
+            <h2 className="advance-title">
+              {UI_TEXT.en.days.review}
+            </h2>
+
+            <div className="advance-content">
+              <p>
+                You must complete a review before attempting the Assessment again.
+              </p>
+
+              <div style={{ marginTop: "20px" }}>
+                <button
+                  className="tab-button active"
+                  onClick={() => setIsAdvanceRunning(true)}
+                >
+                  {UI_TEXT.en.buttons.review}
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {!isAdvanceRunning && (
+          <>
+            <h2 className="advance-title">
+              {UI_TEXT.en.panels.dayAssessmentTitle}
+            </h2>
+
+            <div className="advance-content">
+
+              {levelState?.dayExams?.[activeDay]?.passed ? (
+                <>
+                  <p>
+                    This assessment has already been approved.
+                  </p>
+
+                  <div style={{ marginTop: "12px" }}>
+                    <p>
+                      Attempts: {levelState.dayExams[currentDay].attempts}
+                    </p>
+                    <p>
+                      Final Score: {levelState.dayExams[currentDay].score}
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p>
+                    This is the official evaluation of the day.
+                  </p>
+
+                  <div style={{ marginTop: "20px" }}>
+                    <button
+                      className="tab-button active"
+                      onClick={() => setIsAdvanceRunning(true)}
+                    >
+                      {UI_TEXT.en.buttons.startAssessment}
+                    </button>
+                  </div>
+                </>
+              )}
 
             </div>
           </>
@@ -339,6 +436,7 @@ export default function AdvancePanel({
                 max="100"
                 value={manualScore}
                 onChange={(e) => setManualScore(e.target.value)}
+                disabled={isLockedForEditing}
                 style={{
                   padding: "6px",
                   borderRadius: "6px",
