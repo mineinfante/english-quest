@@ -148,7 +148,8 @@ export default function Header({
   evaluationMessage,
   activeDay,
   setActiveDay,
-  advancesContainerRef
+  advancesContainerRef,
+  getConquistaStatus
 }) {
 
   return (
@@ -176,20 +177,59 @@ export default function Header({
       <div className="header-row">
         <span className="header-label">Conquistas</span>
         <div className="tabs-container tabs-conquistas">
-          {conquistasList.map((conquista) => (
-            <button
-              key={conquista}
-              onClick={() => setActiveConquista(conquista)}
-              className={`tab-button ${
-                activeConquista === conquista ? "active" : ""
-              }`}
-            >
-              {
-                CONTENT[activeVivencia]?.[conquista]?.meta?.name
-                || conquista
-              }
-            </button>
-          ))}
+          {conquistasList.map((conquista) => {
+
+            const status = getConquistaStatus(conquista)
+
+            const isActive = activeConquista === conquista
+
+            return (
+              <button
+                key={conquista}
+                onClick={() => setActiveConquista(conquista)}
+                className={`tab-button ${isActive ? "active" : ""}`}
+                style={{
+                  position: "relative"
+                }}
+              >
+                {
+                  CONTENT[activeVivencia]?.[conquista]?.meta?.name
+                  || conquista
+                }
+
+                {/* Indicador visual */}
+                {(isActive || status !== "idle") && (
+                  <span
+                    style={{
+                      position: "absolute",
+                      bottom: "4px",
+                      right: "4px",
+                      width: "6px",
+                      height: "6px",
+                      borderRadius: "50%",
+                      background:
+                        status === "completed"
+                          ? "white"
+                          : status === "pending"
+                          ? "#f97316"
+                          : status === "started"
+                          ? "#facc15"
+                          : isActive
+                          ? "#22c55e"
+                          : "transparent",
+                      boxShadow:
+                        status === "completed"
+                          ? "0 0 6px rgba(255,255,255,0.6)"
+                          : isActive
+                          ? "0 0 6px rgba(34,197,94,0.6)"
+                          : "none"
+                    }}
+                  />
+                )}
+              </button>
+            )
+          })}
+
         </div>
       </div>
 
@@ -233,9 +273,7 @@ export default function Header({
                 ? false
                 : day > maxDayUnlocked
 
-              const isActive = isFinal
-                ? currentDay === "final-evaluation"
-                : day === activeDay
+              const isActive = day === activeDay
                 
               return (
                 <button
@@ -329,7 +367,7 @@ export default function Header({
       </div>
 
       {/* Avances */}
-      {currentDay !== "final-evaluation" && (
+      {activeDay !== "final-evaluation" && activeDay !== "review-day" && (
         <div className="header-row">
         <span className="header-label">Avances</span>
 
@@ -391,12 +429,13 @@ export default function Header({
        </div>
       )}
 
-      {currentDay === "final-evaluation" && evaluationMessage && (
-        <EvaluationMessagePanel
-          title={evaluationMessage.title}
-          message={evaluationMessage.message}
-        />
+      {evaluationMessage && (
+        <div className="evaluation-banner">
+          <h2>{evaluationMessage.title}</h2>
+          <p>{evaluationMessage.message}</p>
+        </div>
       )}
+
     </div>
   )
 }

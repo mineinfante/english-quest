@@ -59,6 +59,7 @@ export function createInitialPlayer() {
         xp: 0,
         daysInLevel: 0,
         currentDay: 1,
+        lastActiveDay: 1,
         maxDayUnlocked: 1,
         currentAdvanceIndex: 0,
         currentAdvanceIndexByDay: {},

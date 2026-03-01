@@ -1,5 +1,6 @@
 import ConquestCompletionPanel from "./ConquestCompletionPanel"
 import { UI_TEXT } from "../config/uiText"
+import { useEffect } from "react"
 
 export default function AdvancePanel({
   currentAdvance,
@@ -7,6 +8,9 @@ export default function AdvancePanel({
   activeConquista,
   levelState,
   activeDay,
+  blockedNavigation,
+  setBlockedNavigation,
+  setActiveDay,
   isLockedForEditing,
   isAdvanceRunning,
   setIsAdvanceRunning,
@@ -29,8 +33,52 @@ export default function AdvancePanel({
   setActiveConquista
 }) {
 
+  useEffect(() => {
+    setIsAdvanceRunning(false)
+  }, [activeDay])
+
   if (!currentAdvance) {
     return null
+  }
+
+  if (blockedNavigation && !levelState?.finalExam?.passed) {
+    return (
+      <div className="advance-card fade-container summary">
+        <h2 className="advance-title">
+          Conquista no completada
+        </h2>
+
+        <div className="advance-content">
+          <p>
+            No has concluido la conquista actual. 
+            Debes aprobar el Assessment antes de poder avanzar.
+          </p>
+
+          <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+            <button
+              className="tab-button active"
+              onClick={() => {
+                setActiveDay("final-evaluation")
+                setIsAdvanceRunning(false)
+                setExamScore("")
+                setBlockedNavigation(null)
+              }}
+            >
+              Ir al Assessment
+            </button>
+
+            <button
+              className="tab-button"
+              onClick={() => {
+                setBlockedNavigation(null)
+              }}
+            >
+              Permanecer aquí
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (isDayEvaluation) {
@@ -139,69 +187,75 @@ export default function AdvancePanel({
   if (isReviewDay) {
     return (
       <div className={`advance-card fade-container ${isAdvanceRunning ? "workspace" : "summary"}`}>
-        
+
         {!isAdvanceRunning && (
           <>
             <h2 className="advance-title">
-              {UI_TEXT.en.days.review}
+              Review
             </h2>
 
             <div className="advance-content">
-              <p>
-                You must complete a review before attempting the Assessment again.
-              </p>
-
               <div style={{ marginTop: "20px" }}>
                 <button
                   className="tab-button active"
                   onClick={() => setIsAdvanceRunning(true)}
                 >
-                  {UI_TEXT.en.buttons.review}
+                  Start Review
                 </button>
               </div>
             </div>
           </>
         )}
 
-        {!isAdvanceRunning && (
+        {isAdvanceRunning && (
           <>
             <h2 className="advance-title">
-              {UI_TEXT.en.panels.dayAssessmentTitle}
+              Review
             </h2>
 
             <div className="advance-content">
 
-              {levelState?.dayExams?.[activeDay]?.passed ? (
-                <>
-                  <p>
-                    This assessment has already been approved.
-                  </p>
+              <p style={{ opacity: 0.7 }}>
+                Enter your Review score (0–100)
+              </p>
 
-                  <div style={{ marginTop: "12px" }}>
-                    <p>
-                      Attempts: {levelState.dayExams[currentDay].attempts}
-                    </p>
-                    <p>
-                      Final Score: {levelState.dayExams[currentDay].score}
-                    </p>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <p>
-                    This is the official evaluation of the day.
-                  </p>
+              <div style={{ marginTop: "20px" }}>
+                <label style={{ display: "block", marginBottom: "6px" }}>
+                  Review Score
+                </label>
 
-                  <div style={{ marginTop: "20px" }}>
-                    <button
-                      className="tab-button active"
-                      onClick={() => setIsAdvanceRunning(true)}
-                    >
-                      {UI_TEXT.en.buttons.startAssessment}
-                    </button>
-                  </div>
-                </>
-              )}
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={manualScore}
+                  onChange={(e) => setManualScore(e.target.value)}
+                  style={{
+                    padding: "6px",
+                    borderRadius: "6px",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    background: "rgba(255,255,255,0.05)",
+                    color: "white",
+                    width: "100%"
+                  }}
+                />
+              </div>
+
+              <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+                <button
+                  className="tab-button active"
+                  onClick={handleSubmitReview}
+                >
+                  Submit Review
+                </button>
+
+                <button
+                  className="tab-button"
+                  onClick={() => setIsAdvanceRunning(false)}
+                >
+                  Back
+                </button>
+              </div>
 
             </div>
           </>
@@ -211,46 +265,57 @@ export default function AdvancePanel({
     )
   }
 
-  if (isFinalEvaluationDay) {
+  if (activeDay === "final-evaluation") {
+
+    // 🔴 Forzar salida de workspace si necesita review
+    if (needsReview && isAdvanceRunning) {
+      setIsAdvanceRunning(false)
+    }
 
     if (levelState?.finalExam?.passed) {
-      return (
-        <ConquestCompletionPanel
-          vivenciaId={activeVivencia}
-          conquistaId={activeConquista}
-          onNextConquista={() => {
-            const currentIndex = conquistasList.indexOf(activeConquista)
-            const nextConquista = conquistasList[currentIndex + 1]
 
-            if (nextConquista) {
-              setActiveConquista(nextConquista)
-            }
-          }}
-          onNextVivencia={() => {
-            const currentIndex = vivenciasList.indexOf(activeVivencia)
-            const nextVivencia = vivenciasList[currentIndex + 1]
+      // 🟢 Solo mostrar botones si acaba de completarse
+      if (levelState?.justCompletedConquest && !blockedNavigation) {
+        return (
+          <ConquestCompletionPanel
+            vivenciaId={activeVivencia}
+            conquistaId={activeConquista}
+            onNextConquista={() => {
+              const currentIndex = conquistasList.indexOf(activeConquista)
+              const nextConquista = conquistasList[currentIndex + 1]
 
-            if (!nextVivencia) return
-
-            // Buscar primera conquista pendiente en la nueva vivencia
-            const nextVivenciaState = levelState?.vivencias?.[nextVivencia]
-
-            let firstPendingConquista = conquistasList[0]
-
-            for (let conquista of conquistasList) {
-              const conquistaState = nextVivenciaState?.[conquista]
-
-              if (!conquistaState?.finalExam?.passed) {
-                firstPendingConquista = conquista
-                break
+              if (nextConquista) {
+                setActiveConquista(nextConquista)
+                setActiveDay(1)
               }
-            }
+            }}
+            onNextVivencia={() => {
+              const currentIndex = vivenciasList.indexOf(activeVivencia)
+              const nextVivencia = vivenciasList[currentIndex + 1]
 
-            setActiveVivencia(nextVivencia)
-            setActiveConquista(firstPendingConquista)
-          }}
+              if (!nextVivencia) return
 
-        />
+              setActiveVivencia(nextVivencia)
+              setActiveConquista(conquistasList[0])
+              setActiveDay(1)
+            }}
+          />
+        )
+      }
+
+      // 🔵 Si no es recién completada, solo mensaje informativo
+      return (
+        <div className="advance-card fade-container summary">
+          <h2 className="advance-title">
+            Assessment Already Approved
+          </h2>
+
+          <div className="advance-content">
+            <p>
+              This conquest has already been successfully completed.
+            </p>
+          </div>
+        </div>
       )
     }
 
@@ -271,7 +336,13 @@ export default function AdvancePanel({
               <div style={{ marginTop: "20px" }}>
                 <button
                   className="tab-button active"
-                  onClick={() => setIsAdvanceRunning(true)}
+                  onClick={() => {
+                    if (needsReview) {
+                      setActiveDay("review-day")
+                    } else {
+                      setIsAdvanceRunning(true)
+                    }
+                  }}
                 >
                   {needsReview
                     ? UI_TEXT.en.buttons.review
@@ -341,9 +412,17 @@ export default function AdvancePanel({
               <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
                 <button
                   className="tab-button active"
-                  onClick={handleSubmitFinalExam}
+                  onClick={() => {
+                    if (needsReview) {
+                      setActiveDay("review-day")
+                    } else {
+                      handleSubmitFinalExam()
+                    }
+                  }}
                 >
-                  {UI_TEXT.en.buttons.submitAssessment}
+                  {needsReview
+                    ? UI_TEXT.en.buttons.review
+                    : UI_TEXT.en.buttons.submitAssessment}
                 </button>
 
                 <button
