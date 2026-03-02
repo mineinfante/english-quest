@@ -8,8 +8,6 @@ export default function AdvancePanel({
   activeConquista,
   levelState,
   activeDay,
-  blockedNavigation,
-  setBlockedNavigation,
   setActiveDay,
   isLockedForEditing,
   isAdvanceRunning,
@@ -24,7 +22,6 @@ export default function AdvancePanel({
   handleSubmitDayExam,
   handleSubmitFinalExam,
   handleSubmitReview,
-  isFinalEvaluationDay,
   needsReview,
   isReviewDay,
   vivenciasList,
@@ -37,91 +34,69 @@ export default function AdvancePanel({
     setIsAdvanceRunning(false)
   }, [activeDay])
 
-  if (!currentAdvance) {
-    return null
-  }
+  if (!currentAdvance) return null
 
-  if (blockedNavigation && !levelState?.finalExam?.passed) {
-    return (
-      <div className="advance-card fade-container summary">
-        <h2 className="advance-title">
-          Conquista no completada
-        </h2>
-
-        <div className="advance-content">
-          <p>
-            No has concluido la conquista actual. 
-            Debes aprobar el Assessment antes de poder avanzar.
-          </p>
-
-          <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-            <button
-              className="tab-button active"
-              onClick={() => {
-                setActiveDay("final-evaluation")
-                setIsAdvanceRunning(false)
-                setExamScore("")
-                setBlockedNavigation(null)
-              }}
-            >
-              Ir al Assessment
-            </button>
-
-            <button
-              className="tab-button"
-              onClick={() => {
-                setBlockedNavigation(null)
-              }}
-            >
-              Permanecer aquí
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  /* ===================================================== */
+  /* ================= DAY EVALUATION ==================== */
+  /* ===================================================== */
 
   if (isDayEvaluation) {
+
     const structuralDay = activeDay
     const examData = levelState?.dayExams?.[structuralDay]
-
     const alreadyPassed = examData?.passed === true
+
+    const hasFailed =
+      examData?.attempts > 0 &&
+      examData?.passed === false
 
     return (
       <div className={`advance-card fade-container ${isAdvanceRunning ? "workspace" : "summary"}`}>
-        
+
         {!isAdvanceRunning && (
           <>
             <h2 className="advance-title">
-              Day Final Exam
+              {UI_TEXT.en.panels.dayAssessmentTitle}
             </h2>
 
-            <div className="advance-content">
+          {examData && (alreadyPassed || hasFailed) && (
+            <div
+              className={`status-badge ${
+                alreadyPassed
+                  ? "status-badge--completed"
+                  : "status-badge--failed"
+              }`}
+            >
+              {
+                alreadyPassed
+                  ? UI_TEXT.en.labels.statusCompleted
+                  : UI_TEXT.en.labels.statusPendingEvaluation
+              }
+            </div>
+          )}
 
+            <div className="advance-content">
               {alreadyPassed ? (
                 <>
-                  <p>This assessment has already been approved.</p>
-
+                  <p>{UI_TEXT.en.messages.alreadyApproved}</p>
                   <div style={{ marginTop: "12px" }}>
-                    <p>Attempts: {examData.attempts}</p>
-                    <p>Final Score: {examData.score}</p>
+                    <p>{UI_TEXT.en.labels.attempts}: {examData.attempts}</p>
+                    <p>{UI_TEXT.en.labels.finalScore}: {examData.score}</p>
                   </div>
                 </>
               ) : (
                 <>
-                  <p>This is the official evaluation of the day.</p>
-
+                  <p>{UI_TEXT.en.messages.dayAssessmentDescription}</p>
                   <div style={{ marginTop: "20px" }}>
                     <button
                       className="tab-button active"
                       onClick={() => setIsAdvanceRunning(true)}
                     >
-                      Start Exam
+                      {UI_TEXT.en.buttons.startAssessment}
                     </button>
                   </div>
                 </>
               )}
-
             </div>
           </>
         )}
@@ -129,80 +104,70 @@ export default function AdvancePanel({
         {isAdvanceRunning && !alreadyPassed && (
           <>
             <h2 className="advance-title">
-              Day Final Exam
+              {UI_TEXT.en.panels.dayAssessmentTitle}
             </h2>
 
             <div className="advance-content">
-
               <p style={{ opacity: 0.7 }}>
-                Submit your final score for this day.
+                {UI_TEXT.en.messages.enterExamScore}
               </p>
 
-              <div style={{ marginTop: "20px" }}>
-                <label style={{ display: "block", marginBottom: "6px" }}>
-                  Exam Score (0–100)
-                </label>
+              <label style={{ display: "block", marginBottom: "6px" }}>
+                {UI_TEXT.en.labels.examScore}
+              </label>
 
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={examScore}
-                  onChange={(e) => setExamScore(e.target.value)}
-                  style={{
-                    padding: "6px",
-                    borderRadius: "6px",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                    background: "rgba(255,255,255,0.05)",
-                    color: "white",
-                    width: "100%"
-                  }}
-                />
-              </div>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={examScore}
+                onChange={(e) => setExamScore(e.target.value)}
+              />
 
               <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
                 <button
                   className="tab-button active"
                   onClick={handleSubmitDayExam}
                 >
-                  Submit Exam
+                  {UI_TEXT.en.buttons.submitAssessment}
                 </button>
 
                 <button
                   className="tab-button"
                   onClick={() => setIsAdvanceRunning(false)}
                 >
-                  Back
+                  {UI_TEXT.en.buttons.back}
                 </button>
               </div>
-
             </div>
           </>
         )}
-
       </div>
     )
   }
 
+  /* ===================================================== */
+  /* ================= REVIEW ============================ */
+  /* ===================================================== */
+
   if (isReviewDay) {
+
     return (
       <div className={`advance-card fade-container ${isAdvanceRunning ? "workspace" : "summary"}`}>
 
         {!isAdvanceRunning && (
           <>
             <h2 className="advance-title">
-              Review
+              {UI_TEXT.en.days.review}
             </h2>
 
             <div className="advance-content">
-              <div style={{ marginTop: "20px" }}>
-                <button
-                  className="tab-button active"
-                  onClick={() => setIsAdvanceRunning(true)}
-                >
-                  Start Review
-                </button>
-              </div>
+              <button
+                className="tab-button active"
+                onClick={() => setIsAdvanceRunning(true)}
+              >
+                {UI_TEXT.en.buttons.review}
+              </button>
             </div>
           </>
         )}
@@ -210,219 +175,29 @@ export default function AdvancePanel({
         {isAdvanceRunning && (
           <>
             <h2 className="advance-title">
-              Review
+              {UI_TEXT.en.days.review}
             </h2>
 
             <div className="advance-content">
 
-              <p style={{ opacity: 0.7 }}>
-                Enter your Review score (0–100)
-              </p>
+              <label style={{ display: "block", marginBottom: "6px" }}>
+                {UI_TEXT.en.labels.reviewScore}
+              </label>
 
-              <div style={{ marginTop: "20px" }}>
-                <label style={{ display: "block", marginBottom: "6px" }}>
-                  Review Score
-                </label>
-
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={manualScore}
-                  onChange={(e) => setManualScore(e.target.value)}
-                  style={{
-                    padding: "6px",
-                    borderRadius: "6px",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                    background: "rgba(255,255,255,0.05)",
-                    color: "white",
-                    width: "100%"
-                  }}
-                />
-              </div>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={manualScore}
+                onChange={(e) => setManualScore(e.target.value)}
+              />
 
               <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
                 <button
                   className="tab-button active"
                   onClick={handleSubmitReview}
                 >
-                  Submit Review
-                </button>
-
-                <button
-                  className="tab-button"
-                  onClick={() => setIsAdvanceRunning(false)}
-                >
-                  Back
-                </button>
-              </div>
-
-            </div>
-          </>
-        )}
-
-      </div>
-    )
-  }
-
-  if (activeDay === "final-evaluation") {
-
-    // 🔴 Forzar salida de workspace si necesita review
-    if (needsReview && isAdvanceRunning) {
-      setIsAdvanceRunning(false)
-    }
-
-    if (levelState?.finalExam?.passed) {
-
-      // 🟢 Solo mostrar botones si acaba de completarse
-      if (levelState?.justCompletedConquest && !blockedNavigation) {
-        return (
-          <ConquestCompletionPanel
-            vivenciaId={activeVivencia}
-            conquistaId={activeConquista}
-            onNextConquista={() => {
-              const currentIndex = conquistasList.indexOf(activeConquista)
-              const nextConquista = conquistasList[currentIndex + 1]
-
-              if (nextConquista) {
-                setActiveConquista(nextConquista)
-                setActiveDay(1)
-              }
-            }}
-            onNextVivencia={() => {
-              const currentIndex = vivenciasList.indexOf(activeVivencia)
-              const nextVivencia = vivenciasList[currentIndex + 1]
-
-              if (!nextVivencia) return
-
-              setActiveVivencia(nextVivencia)
-              setActiveConquista(conquistasList[0])
-              setActiveDay(1)
-            }}
-          />
-        )
-      }
-
-      // 🔵 Si no es recién completada, solo mensaje informativo
-      return (
-        <div className="advance-card fade-container summary">
-          <h2 className="advance-title">
-            Assessment Already Approved
-          </h2>
-
-          <div className="advance-content">
-            <p>
-              This conquest has already been successfully completed.
-            </p>
-          </div>
-        </div>
-      )
-    }
-
-    return (
-      <div className={`advance-card fade-container ${isAdvanceRunning ? "workspace" : "summary"}`}>
-
-        {!isAdvanceRunning && (
-          <>
-            <h2 className="advance-title">
-              {UI_TEXT.en.panels.finalAssessmentTitle}
-            </h2>
-
-            <div className="advance-content">
-              <p>
-                Esta es la evaluación oficial de la conquista.
-              </p>
-
-              <div style={{ marginTop: "20px" }}>
-                <button
-                  className="tab-button active"
-                  onClick={() => {
-                    if (needsReview) {
-                      setActiveDay("review-day")
-                    } else {
-                      setIsAdvanceRunning(true)
-                    }
-                  }}
-                >
-                  {needsReview
-                    ? UI_TEXT.en.buttons.review
-                    : UI_TEXT.en.buttons.startAssessment
-                  }
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-
-        {isAdvanceRunning && (
-          <>
-            <h2 className="advance-title">
-              {UI_TEXT.en.panels.finalAssessmentTitle}
-            </h2>
-
-            <div className="advance-content">
-
-              <p style={{ opacity: 0.7 }}>
-                Ingresa tu puntaje final (0–100)
-              </p>
-
-              {levelState?.finalExam?.attempts > 0 && (
-                <div style={{ marginTop: "12px" }}>
-                  <p>
-                    Intentos: {levelState.finalExam.attempts}
-                  </p>
-
-                  <p>
-                    Último puntaje: {levelState.finalExam.score}
-                  </p>
-
-                  <p style={{
-                    color: levelState.finalExam.passed ? "#22c55e" : "#f97316",
-                    fontWeight: "600"
-                  }}>
-                    {levelState.finalExam.passed
-                      ? "Aprobado"
-                      : "No aprobado"}
-                  </p>
-                </div>
-              )}
-
-              <div style={{ marginTop: "20px" }}>
-                <label style={{ display: "block", marginBottom: "6px" }}>
-                  Puntaje
-                </label>
-
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={examScore}
-                  onChange={(e) => setExamScore(e.target.value)}
-                  style={{
-                    padding: "6px",
-                    borderRadius: "6px",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                    background: "rgba(255,255,255,0.05)",
-                    color: "white",
-                    width: "100%"
-                  }}
-                />
-              </div>
-
-              <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-                <button
-                  className="tab-button active"
-                  onClick={() => {
-                    if (needsReview) {
-                      setActiveDay("review-day")
-                    } else {
-                      handleSubmitFinalExam()
-                    }
-                  }}
-                >
-                  {needsReview
-                    ? UI_TEXT.en.buttons.review
-                    : UI_TEXT.en.buttons.submitAssessment}
+                  {UI_TEXT.en.buttons.submitAssessment}
                 </button>
 
                 <button
@@ -441,100 +216,222 @@ export default function AdvancePanel({
     )
   }
 
-  const isStarted = advanceProgress?.started === true
+  /* ===================================================== */
+  /* ================= FINAL EVALUATION ================== */
+  /* ===================================================== */
 
-  return (
-    <div className={`advance-card fade-container ${isAdvanceRunning ? "workspace" : "summary"}`}>
+  if (activeDay === "final-evaluation") {
+console.log("=== FINAL BLOCK ENTERED ===")
+console.log("activeDay:", activeDay)
+console.log("isReviewDay:", isReviewDay)
+console.log("needsReview:", needsReview)
+console.log("finalExam:", levelState?.finalExam)
 
-      {/* SUMMARY */}
-      {!isAdvanceRunning && (
-        <>
-          <h2 className="advance-title">
-            {isDayEvaluation ? "Day Final Exam" : "Advance Preview"}
-          </h2>
+    const finalExam = levelState?.finalExam || { passed: false, attempts: 0 }
 
-          <div className="advance-content">
-            <p><strong>ID:</strong> {currentAdvance.id}</p>
-            <p><strong>Objective:</strong> {currentAdvance.objective}</p>
+    if (finalExam?.passed && levelState?.justCompletedConquest) {
+      return (
+        <ConquestCompletionPanel
+          vivenciaId={activeVivencia}
+          conquistaId={activeConquista}
+          onNextConquista={() => {
+            const currentIndex = conquistasList.indexOf(activeConquista)
+            const nextConquista = conquistasList[currentIndex + 1]
+            if (nextConquista) {
+              setActiveConquista(nextConquista)
+              setActiveDay(1)
+              setIsAdvanceRunning(false)
+            }
+          }}
+          onNextVivencia={() => {
+            const currentIndex = vivenciasList.indexOf(activeVivencia)
+            const nextVivencia = vivenciasList[currentIndex + 1]
+            if (!nextVivencia) return
+            setActiveVivencia(nextVivencia)
+            setActiveConquista(conquistasList[0])
+            setActiveDay(1)
+          }}
+        />
+      )
+    }
 
-            <hr style={{ margin: "20px 0", opacity: 0.2 }} />
+    return (
+      <div className={`advance-card fade-container ${isAdvanceRunning ? "workspace" : "summary"}`}>
 
-            <p><strong>Vivencia:</strong> {activeVivencia}</p>
-            <p><strong>Conquista:</strong> {activeConquista}</p>
-            <p><strong>XP:</strong> {levelState?.xp ?? 0}</p>
+        {finalExam && (finalExam.passed || finalExam.attempts > 0) && (
+          <div
+            className={`status-badge ${
+              finalExam.passed
+                ? "status-badge--completed"
+                : "status-badge--failed"
+            }`}
+          >
+            {
+              finalExam.passed
+                ? UI_TEXT.en.labels.statusCompleted
+                : UI_TEXT.en.labels.statusPendingEvaluation
+            }
+          </div>
+        )}
 
-            <div style={{ marginTop: "20px" }}>
+        {!isAdvanceRunning && (
+          <>
+            <h2 className="advance-title">
+              {UI_TEXT.en.panels.finalAssessmentTitle}
+            </h2>
+
+            <div className="advance-content">
               <button
                 className="tab-button active"
                 onClick={() => {
-                  if (!isStarted) {
-                    onStartAdvance()
+                  if (needsReview) {
+                    setActiveDay("review-day")
+                  } else {
+                    setIsAdvanceRunning(true)
                   }
-                  setIsAdvanceRunning(true)
                 }}
               >
-                {isStarted ? "Continue" : "Start Advance"}
+                {needsReview
+                  ? UI_TEXT.en.buttons.review
+                  : UI_TEXT.en.buttons.startAssessment}
               </button>
             </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
 
-      {/* WORKSPACE */}
-      {isAdvanceRunning && (
-        <>
-          <h2 className="advance-title">
-            Advance Workspace
-          </h2>
+        {isAdvanceRunning && (
+          <>
+            <h2 className="advance-title">
+              {UI_TEXT.en.panels.finalAssessmentTitle}
+            </h2>
 
-          <div className="advance-content">
-            <p style={{ opacity: 0.7 }}>
-              LLM content will appear here.
-            </p>
+            <div className="advance-content">
 
-            <div
-              style={{
-                marginTop: "20px",
-                padding: "15px",
-                minHeight: "150px",
-                borderRadius: "8px",
-                background: "rgba(255,255,255,0.05)"
-              }}
-            >
-              User response area (coming next step)
-            </div>
-
-            <div style={{ marginTop: "20px" }}>
-              <label style={{ display: "block", marginBottom: "6px" }}>
-                Manual Quiz Score (0–100)
+              <label>
+                {UI_TEXT.en.labels.examScore}
               </label>
 
               <input
                 type="number"
                 min="0"
                 max="100"
-                value={manualScore}
-                onChange={(e) => setManualScore(e.target.value)}
-                disabled={isLockedForEditing}
-                style={{
-                  padding: "6px",
-                  borderRadius: "6px",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                  background: "rgba(255,255,255,0.05)",
-                  color: "white",
-                  width: "100%"
-                }}
+                value={examScore}
+                onChange={(e) => setExamScore(e.target.value)}
               />
+
+              <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+                <button
+                  className="tab-button active"
+                  onClick={handleSubmitFinalExam}
+                >
+                  {UI_TEXT.en.buttons.submitAssessment}
+                </button>
+
+                <button
+                  className="tab-button"
+                  onClick={() => setIsAdvanceRunning(false)}
+                >
+                  {UI_TEXT.en.buttons.back}
+                </button>
+              </div>
             </div>
+          </>
+        )}
+      </div>
+    )
+  }
+
+  /* ===================================================== */
+  /* ================= NORMAL ADVANCE ==================== */
+  /* ===================================================== */
+
+  const progress = advanceProgress || {}
+  const isStarted = progress.started === true
+  const isFinished = progress.finished === true
+  const isPassed = progress.passed === true
+
+  let badgeClass = null
+
+  if (isFinished && isPassed) {
+    badgeClass = "status-badge--completed"
+  } else if (isFinished && !isPassed) {
+    badgeClass = "status-badge--failed"
+  } else if (isStarted) {
+    badgeClass = "status-badge--started"
+  }
+
+  return (
+    <div className={`advance-card fade-container ${isAdvanceRunning ? "workspace" : "summary"}`}>
+
+      {badgeClass && (
+        <div className={`status-badge ${badgeClass}`}>
+          {
+            badgeClass === "status-badge--completed"
+              ? UI_TEXT.en.labels.statusCompleted
+              : badgeClass === "status-badge--failed"
+              ? UI_TEXT.en.labels.statusPendingEvaluation
+              : UI_TEXT.en.labels.statusStarted
+          }
+        </div>
+      )}
+
+      {!isAdvanceRunning && (
+        <>
+          <h2 className="advance-title">
+            {UI_TEXT.en.panels.advancePreview}
+          </h2>
+
+          <div className="advance-content">
+            <p><strong>ID:</strong> {currentAdvance.id}</p>
+            <p><strong>{UI_TEXT.en.labels.objective}:</strong> {currentAdvance.objective}</p>
+
+            <hr style={{ margin: "20px 0", opacity: 0.2 }} />
+
+            <button
+              className="tab-button active"
+              onClick={() => {
+                if (!isStarted) onStartAdvance()
+                setIsAdvanceRunning(true)
+              }}
+            >
+              {isStarted
+                ? UI_TEXT.en.buttons.continue
+                : UI_TEXT.en.buttons.startAdvance}
+            </button>
+          </div>
+        </>
+      )}
+
+      {isAdvanceRunning && (
+        <>
+          <h2 className="advance-title">
+            {UI_TEXT.en.panels.advanceWorkspace}
+          </h2>
+
+          <div className="advance-content">
+
+            <label>
+              {UI_TEXT.en.labels.manualScore}
+            </label>
+
+            <input
+              type="number"
+              min="0"
+              max="100"
+              value={manualScore}
+              onChange={(e) => setManualScore(e.target.value)}
+              disabled={isLockedForEditing}
+            />
 
             <div style={{ marginTop: "20px" }}>
               <button
                 className="tab-button"
                 onClick={() => setIsAdvanceRunning(false)}
               >
-                Back to Summary
+                {UI_TEXT.en.buttons.back}
               </button>
             </div>
+
           </div>
         </>
       )}

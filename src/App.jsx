@@ -360,13 +360,6 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
     ]
   }
 
-
-console.log(
-  "Derived Advances IDs:",
-  derivedAdvances.map(a => a.id)
-)
-
-
   const currentAdvance =
     derivedAdvances[currentAdvanceIndex] ?? null
 
@@ -560,16 +553,20 @@ console.log(
   useEffect(() => {
     if (!isDayAdvancesCompleted) return
 
+    let didUnlockNow = false
+
     setPlayer((prev) => {
       const vivenciaData = prev.vivencias[activeVivencia]
       const conquistaData = vivenciaData[activeConquista]
 
-      const currentExam =
-        conquistaData.dayExams?.[currentDay]
+      const structuralDay = conquistaData.currentDay
+      const currentExam = conquistaData.dayExams?.[structuralDay]
 
       if (!currentExam || currentExam.unlocked) {
         return prev
       }
+
+      didUnlockNow = true
 
       return {
         ...prev,
@@ -581,7 +578,7 @@ console.log(
               ...conquistaData,
               dayExams: {
                 ...conquistaData.dayExams,
-                [currentDay]: {
+                [structuralDay]: {
                   ...currentExam,
                   unlocked: true
                 }
@@ -591,8 +588,47 @@ console.log(
         }
       }
     })
-  }, [isDayAdvancesCompleted, activeDay, activeVivencia, activeConquista])
 
+    // 🔹 Solo mover automáticamente si se desbloqueó ahora
+    if (didUnlockNow) {
+      setTimeout(() => {
+        const dayEvalIndex = derivedAdvances.findIndex(
+          (a) => a.id === "day-evaluation"
+        )
+
+        if (dayEvalIndex === -1) return
+
+        setPlayer((prev) => {
+          const vivenciaData = prev.vivencias[activeVivencia]
+          const conquistaData = vivenciaData[activeConquista]
+
+          return {
+            ...prev,
+            vivencias: {
+              ...prev.vivencias,
+              [activeVivencia]: {
+                ...vivenciaData,
+                [activeConquista]: {
+                  ...conquistaData,
+                  currentAdvanceIndex: dayEvalIndex,
+                  currentAdvanceIndexByDay: {
+                    ...conquistaData.currentAdvanceIndexByDay,
+                    [activeDay]: dayEvalIndex
+                  }
+                }
+              }
+            }
+          }
+        })
+      }, 0)
+    }
+
+  }, [
+    isDayAdvancesCompleted,
+    activeVivencia,
+    activeConquista,
+    activeDay
+  ])
   // =============================
   // 🟣 E3 — Unlock Conquista Final Exam
   // =============================
@@ -638,6 +674,20 @@ console.log(
   const progressPercent = (currentLevelXP / 100) * 100
 
   const changeAdvance = (newIndex) => {
+
+    const selectedAdvance = derivedAdvances[newIndex]
+
+    // Determinar cuál será el día real
+    const nextDay =
+      selectedAdvance.id === "conquista-evaluation"
+        ? "final-evaluation"
+        : activeDay
+
+    // Si es final, cambiar activeDay
+    if (selectedAdvance.id === "conquista-evaluation") {
+      setActiveDay("final-evaluation")
+    }
+
     setPlayer((prev) => {
       const vivenciaData = prev.vivencias[activeVivencia]
       const conquistaData = vivenciaData[activeConquista]
@@ -653,7 +703,7 @@ console.log(
               currentAdvanceIndex: newIndex,
               currentAdvanceIndexByDay: {
                 ...conquistaData.currentAdvanceIndexByDay,
-                [activeDay]: newIndex
+                [nextDay]: newIndex
               }
             }
           }
@@ -1082,6 +1132,57 @@ console.log(
         }
       }
     })
+
+    // 🔹 Mover automáticamente al Day Assessment
+    const dayEvalIndex = advances.length
+
+    setPlayer((prev) => {
+      const vivenciaData = prev.vivencias[activeVivencia]
+      const conquistaData = vivenciaData[activeConquista]
+
+      return {
+        ...prev,
+        vivencias: {
+          ...prev.vivencias,
+          [activeVivencia]: {
+            ...vivenciaData,
+            [activeConquista]: {
+              ...conquistaData,
+              currentAdvanceIndex: dayEvalIndex,
+              currentAdvanceIndexByDay: {
+                ...conquistaData.currentAdvanceIndexByDay,
+                [activeDay]: dayEvalIndex
+              }
+            }
+          }
+        }
+      }
+    })
+
+    if (dayEvalIndex !== -1) {
+      setPlayer((prev) => {
+        const vivenciaData = prev.vivencias[activeVivencia]
+        const conquistaData = vivenciaData[activeConquista]
+
+        return {
+          ...prev,
+          vivencias: {
+            ...prev.vivencias,
+            [activeVivencia]: {
+              ...vivenciaData,
+              [activeConquista]: {
+                ...conquistaData,
+                currentAdvanceIndex: dayEvalIndex,
+                currentAdvanceIndexByDay: {
+                  ...conquistaData.currentAdvanceIndexByDay,
+                  [activeDay]: dayEvalIndex
+                }
+              }
+            }
+          }
+        }
+      })
+    }
   }
 
   // =============================
@@ -1152,6 +1253,36 @@ console.log(
     })
 
     setActiveDay("final-evaluation")
+
+    // 🔹 Mover índice al Final Assessment
+    setPlayer((prev) => {
+      const vivenciaData = prev.vivencias[activeVivencia]
+      const conquistaData = vivenciaData[activeConquista]
+
+      const finalIndex = derivedAdvances.findIndex(
+        (a) => a.id === "conquista-evaluation"
+      )
+
+      if (finalIndex === -1) return prev
+
+      return {
+        ...prev,
+        vivencias: {
+          ...prev.vivencias,
+          [activeVivencia]: {
+            ...vivenciaData,
+            [activeConquista]: {
+              ...conquistaData,
+              currentAdvanceIndex: finalIndex,
+              currentAdvanceIndexByDay: {
+                ...conquistaData.currentAdvanceIndexByDay,
+                ["final-evaluation"]: finalIndex
+              }
+            }
+          }
+        }
+      }
+    })
   }
 
   // =============================

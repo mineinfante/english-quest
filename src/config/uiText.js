@@ -1,19 +1,50 @@
 export const UI_TEXT = {
   en: {
+
     days: {
       assessment: "Assessment",
       review: "Review"
     },
+
     buttons: {
       startAssessment: "Start Assessment",
+      submitAssessment: "Submit Assessment",
       review: "Review",
       back: "Back",
-      submitAssessment: "Submit Assessment"
+      startAdvance: "Start Advance",
+      continue: "Continue"
     },
+
     panels: {
       finalAssessmentTitle: "Final Assessment",
-      dayAssessmentTitle: "Day Assessment"
+      dayAssessmentTitle: "Day Assessment",
+      advancePreview: "Advance Preview",
+      advanceWorkspace: "Advance Workspace"
     },
+
+    labels: {
+      attempts: "Attempts",
+      finalScore: "Final Score",
+      examScore: "Exam Score (0–100)",
+      reviewScore: "Review Score (0–100)",
+      manualScore: "Manual Quiz Score (0–100)",
+      objective: "Objective",
+
+      statusStarted: "Iniciado",
+      statusPendingEvaluation: "Falta evaluación",
+      statusCompleted: "Completado"
+    },
+
+    messages: {
+      alreadyApproved: "This assessment has already been approved.",
+      dayAssessmentDescription:
+        "This is the official evaluation of the day.",
+      enterExamScore:
+        "Submit your final score for this day.",
+      enterReviewScore:
+        "Enter your Review score (0–100)."
+    },
+
     evaluation: {
       day: {
         title: "Es momento de tu Evaluación.",
@@ -31,5 +62,6 @@ export const UI_TEXT = {
           "Antes de volver a intentar la evaluación final, revisa cuidadosamente los puntos débiles detectados y fortalece tu comprensión."
       }
     }
+
   }
 }

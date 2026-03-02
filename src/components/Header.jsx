@@ -102,19 +102,19 @@ console.log("IS STARTED?", id, progress?.started)
             width: "6px",
             height: "6px",
             borderRadius: "50%",
-            background: isPassed
+            background: isActiveProp
+              ? "#22c55e"
+              : isPassed
               ? "white"
               : isFailed
               ? "#f97316"
               : isStarted
               ? "#facc15"
-              : isActiveProp
-              ? "#22c55e"
               : "transparent",
-            boxShadow: isPassed
-              ? "0 0 6px rgba(255,255,255,0.6)"
-              : isActiveProp && !isStarted
+            boxShadow: isActiveProp
               ? "0 0 6px rgba(34,197,94,0.6)"
+              : isPassed
+              ? "0 0 6px rgba(255,255,255,0.6)"
               : "none"
           }}
         />
@@ -316,47 +316,17 @@ export default function Header({
                     </span>
                   )}
 
-                  {!isLocked && isActive && (
+                  {!isLocked && (
                     <span
-                      style={{
-                        position: "absolute",
-                        bottom: "4px",
-                        right: "4px",
-                        width: "6px",
-                        height: "6px",
-                        borderRadius: "50%",
-                        background: "#22c55e",
-                        boxShadow: "0 0 6px rgba(34,197,94,0.6)"
-                      }}
-                    />
-                  )}
-
-                  {!isLocked && status === "completed" && (
-                    <span
-                      style={{
-                        position: "absolute",
-                        bottom: "4px",
-                        right: "4px",
-                        width: "6px",
-                        height: "6px",
-                        borderRadius: "50%",
-                        background: "white",
-                        boxShadow: "0 0 6px rgba(255,255,255,0.6)"
-                      }}
-                    />
-                  )}
-
-                  {!isLocked && status === "started" && !isActive && (
-                    <span
-                      style={{
-                        position: "absolute",
-                        bottom: "4px",
-                        right: "4px",
-                        width: "6px",
-                        height: "6px",
-                        borderRadius: "50%",
-                        background: "#facc15"
-                      }}
+                      className={`day-indicator ${
+                        isActive
+                          ? "day-indicator--active"
+                          : status === "completed"
+                          ? "day-indicator--completed"
+                          : status === "started"
+                          ? "day-indicator--started"
+                          : ""
+                      }`}
                     />
                   )}
                 </button>
