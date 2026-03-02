@@ -194,7 +194,7 @@ export default function Header({
                 activeVivencia === vivencia ? "active" : ""
               }`}
             >
-              {CONTENT[vivencia]?.meta?.name || vivencia}
+              {t?.vivencias?.[vivencia] || vivencia}
             </button>
           ))}
         </div>
@@ -220,8 +220,7 @@ export default function Header({
                 }}
               >
                 {
-                  CONTENT[activeVivencia]?.[conquista]?.meta?.name
-                  || conquista
+                  t?.conquistas?.[conquista] || conquista
                 }
 
                 {/* Indicador visual */}
@@ -413,9 +412,8 @@ export default function Header({
                     key={advance.id}
                     id={advance.id}
                     title={
-                      PEDAGOGICAL_TEXT[currentLanguage]?.[activeConquista]?.[
-                        advance.order - 1
-                      ]?.title
+                      PEDAGOGICAL_TEXT[currentLanguage]?.[activeConquista]
+                        ?.find(a => a.id === advance.id)?.title
                     }
                     isActiveProp={isActive}
                     progress={progress}

@@ -34,31 +34,31 @@ function createAdvance(config) {
 }
 
 const VIVENCIAS_CONFIG = [
-  { id: "family", name: "With Family", context: "family life" },
-  { id: "friends", name: "With Friends", context: "social situations with friends" },
-  { id: "school", name: "At School", context: "school environment" },
-  { id: "jobInterview", name: "In a Job Interview", context: "job interview situations" },
-  { id: "work", name: "At Work", context: "professional work environment" },
-  { id: "travel", name: "While Traveling", context: "travel situations" },
-  { id: "shopping", name: "While Shopping", context: "shopping situations" },
-  { id: "restaurant", name: "At a Restaurant", context: "restaurant situations" },
-  { id: "phoneCall", name: "On a Phone Call", context: "phone conversations" },
-  { id: "doctor", name: "At the Doctor’s", context: "medical situations" },
-  { id: "neighbors", name: "With Neighbors", context: "neighborhood interactions" },
-  { id: "team", name: "On a Team", context: "team collaboration" },
-  { id: "official", name: "In Official Procedures", context: "official procedures" },
-  { id: "meeting", name: "In a Formal Meeting", context: "formal meetings" },
-  { id: "difficult", name: "In Difficult Situations", context: "challenging situations" },
-  { id: "custom", name: "Personalized Experience", context: "custom user context" }
+  { id: "family", nameKey: "vivencias.family", context: "family life" },
+  { id: "friends", nameKey: "vivencias.friends", context: "social situations with friends" },
+  { id: "school", nameKey: "vivencias.school", context: "school environment" },
+  { id: "jobInterview", nameKey: "vivencias.jobInterview", context: "job interview situations" },
+  { id: "work", nameKey: "vivencias.work", context: "professional work environment" },
+  { id: "travel", nameKey: "vivencias.travel", context: "travel situations" },
+  { id: "shopping", nameKey: "vivencias.shopping", context: "shopping situations" },
+  { id: "restaurant", nameKey: "vivencias.restaurant", context: "restaurant situations" },
+  { id: "phoneCall", nameKey: "vivencias.phoneCall", context: "phone conversations" },
+  { id: "doctor", nameKey: "vivencias.doctor", context: "medical situations" },
+  { id: "neighbors", nameKey: "vivencias.neighbors", context: "neighborhood interactions" },
+  { id: "team", nameKey: "vivencias.team", context: "team collaboration" },
+  { id: "official", nameKey: "vivencias.official", context: "official procedures" },
+  { id: "meeting", nameKey: "vivencias.meeting", context: "formal meetings" },
+  { id: "difficult", nameKey: "vivencias.difficult", context: "challenging situations" },
+  { id: "custom", nameKey: "vivencias.custom", context: "custom user context" }
 ]
 
 const CONQUISTAS_CONFIG = [
-  { id: "A1", name: "Discovery", cefr: "A1", minDays: 7 },
-  { id: "A2", name: "Functional", cefr: "A2", minDays: 10 },
-  { id: "B1", name: "Comprehension", cefr: "B1", minDays: 5 },
-  { id: "B2", name: "Confidence", cefr: "B2", minDays: 8 },
-  { id: "C1", name: "Experience", cefr: "C1", minDays: 9 },
-  { id: "C2", name: "Identity", cefr: "C2", minDays: 15 }
+  { id: "A1", nameKey: "conquistas.A1", cefr: "A1", minDays: 7 },
+  { id: "A2", nameKey: "conquistas.A2", cefr: "A2", minDays: 10 },
+  { id: "B1", nameKey: "conquistas.B1", cefr: "B1", minDays: 5 },
+  { id: "B2", nameKey: "conquistas.B2", cefr: "B2", minDays: 8 },
+  { id: "C1", nameKey: "conquistas.C1", cefr: "C1", minDays: 9 },
+  { id: "C2", nameKey: "conquistas.C2", cefr: "C2", minDays: 15 }
 ]
 
 const A1_TEMPLATE = [
@@ -167,7 +167,23 @@ function generateAdvancesForLevel({ vivenciaId, levelId, context, template }) {
 
     passingScore: null, // 🔹 N1 opcional (si es null, usará N2 o N3)
 
-    buildPrompt: () => `
+    buildPrompt: ({ language = "en" } = {}) => {
+      if (language === "es") {
+        return `
+    Eres un mentor académico de inglés.
+
+    Nivel: ${levelId}
+    Contexto: ${context}
+    Complejidad: ${rules.complexity}
+
+    Crea contenido estructurado adaptado al nivel CEFR ${levelId}.
+    Incluye gramática: ${rules.grammar.join(", ")}
+
+    Devuelve SOLO JSON válido.
+    `
+      }
+
+      return `
     You are an English language mentor.
 
     Level: ${levelId}
@@ -179,8 +195,8 @@ function generateAdvancesForLevel({ vivenciaId, levelId, context, template }) {
 
     Return ONLY valid JSON.
     `
+    }
     })
-
   })
 }
 
@@ -190,7 +206,7 @@ function generateContent() {
   VIVENCIAS_CONFIG.forEach((vivencia) => {
     content[vivencia.id] = {
       meta: {
-        name: vivencia.name,
+        nameKey: vivencia.nameKey,
         passingScore: 70 // 🔹 N3 default por vivencia
       }
     }
@@ -201,7 +217,7 @@ function generateContent() {
 
       content[vivencia.id][conquista.id] = {
         meta: {
-          name: conquista.name,
+          nameKey: conquista.nameKey,
           //Mínimo 7 días por conquista, cada día debes cumplir todos los avances
           //minDaysRequired: 7,
           minDaysRequired: conquista.minDays,

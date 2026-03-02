@@ -6,6 +6,34 @@ export const UI_TEXT = {
       review: "Review"
     },
 
+    vivencias: {
+      family: "With Family",
+      friends: "With Friends",
+      school: "At School",
+      jobInterview: "In a Job Interview",
+      work: "At Work",
+      travel: "While Traveling",
+      shopping: "While Shopping",
+      restaurant: "At a Restaurant",
+      phoneCall: "On a Phone Call",
+      doctor: "At the Doctor’s",
+      neighbors: "With Neighbors",
+      team: "On a Team",
+      official: "In Official Procedures",
+      meeting: "In a Formal Meeting",
+      difficult: "In Difficult Situations",
+      custom: "Personalized Experience"
+    },
+
+    conquistas: {
+      A1: "Discovery",
+      A2: "Functional",
+      B1: "Comprehension",
+      B2: "Confidence",
+      C1: "Experience",
+      C2: "Identity"
+    },
+
     buttons: {
       startAssessment: "Start Assessment",
       submitAssessment: "Submit Assessment",
@@ -53,7 +81,9 @@ export const UI_TEXT = {
       nextConquista:
         "Continue to the next conquest (same CEFR level)",
       nextVivencia:
-        "Continue to the next vivencia (same CEFR level)"
+        "Continue to the next vivencia (same CEFR level)",
+      reviewNeedsMoreWork:
+        "You need more review before attempting the Final Assessment again."
     },
 
     evaluation: {
@@ -81,6 +111,34 @@ export const UI_TEXT = {
       assessment: "Evaluación",
       review: "Revisión"
     },
+
+  vivencias: {
+    family: "Con la Familia",
+    friends: "Con Amigos",
+    school: "En la Escuela",
+    jobInterview: "En una Entrevista de Trabajo",
+    work: "En el Trabajo",
+    travel: "Viajando",
+    shopping: "De Compras",
+    restaurant: "En un Restaurante",
+    phoneCall: "En una Llamada Telefónica",
+    doctor: "En el Doctor",
+    neighbors: "Con los Vecinos",
+    team: "En Equipo",
+    official: "En Trámites Oficiales",
+    meeting: "En una Reunión Formal",
+    difficult: "En Situaciones Difíciles",
+    custom: "Experiencia Personalizada"
+  },
+
+  conquistas: {
+    A1: "Descubrimiento",
+    A2: "Funcional",
+    B1: "Comprensión",
+    B2: "Confianza",
+    C1: "Experiencia",
+    C2: "Identidad"
+  },
 
     buttons: {
       startAssessment: "Iniciar evaluación",
@@ -132,7 +190,9 @@ export const UI_TEXT = {
       conquestCompletedMessage:
         "Has completado esta conquista con éxito.",
       conquestNextStepMessage:
-        "Ahora puedes decidir cómo continuar tu progreso académico."
+        "Ahora puedes decidir cómo continuar tu progreso académico.",
+      reviewNeedsMoreWork:
+        "Necesitas más revisión antes de intentar nuevamente la Evaluación Final."
     },
 
     evaluation: {

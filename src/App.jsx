@@ -1078,7 +1078,7 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
                 ...conquistaData,
                 reviewFeedback: {
                   type: "error",
-                  message: "You need more review before attempting the Final Assessment again."
+                  message: t.messages.reviewNeedsMoreWork
                 }
               }
             }
