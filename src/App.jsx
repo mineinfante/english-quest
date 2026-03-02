@@ -164,14 +164,8 @@ console.log("Day Exams:", levelState?.dayExams)
   const maxDayUnlocked =
     Math.max(levelState?.maxDayUnlocked ?? 1, currentDay)
 
-  const currentAdvanceIndex =
-    levelState?.currentAdvanceIndexByDay?.[activeDay] ?? 0
-
   const maxAdvanceUnlocked =
-    Math.max(
-      levelState?.maxAdvanceUnlocked ?? 0,
-      currentAdvanceIndex
-    )
+    levelState?.maxAdvanceUnlocked ?? 0
 
   const contentAdvances =
     CONTENT[activeVivencia]?.[activeConquista]?.advances ?? []
@@ -307,7 +301,7 @@ console.log("Day Exams:", levelState?.dayExams)
           block: "nearest"
         })
       }
-    }, [currentAdvanceIndex, activeDay])
+    }, [levelState?.currentAdvanceId, activeDay])
     
   // 🟣 Día completamente aprobado (estructural)
   const isCurrentStructuralDayFullyCompleted = (() => {
@@ -373,8 +367,18 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
     ]
   }
 
+  const currentAdvanceIndex = (() => {
+    const id = levelState?.currentAdvanceId
+    if (!id) return 0
+
+    const index = derivedAdvances.findIndex(a => a.id === id)
+    return index >= 0 ? index : 0
+  })()
+
   const currentAdvance =
-    derivedAdvances[currentAdvanceIndex] ?? null
+    derivedAdvances.find(
+      (a) => a.id === levelState?.currentAdvanceId
+    ) ?? null
 
   const isDayEvaluation =
     currentAdvance?.id === "day-evaluation"
@@ -720,7 +724,6 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
             ...vivenciaData,
             [activeConquista]: {
               ...conquistaData,
-              currentAdvanceIndex: newIndex,
               currentAdvanceId: selectedAdvance.id,   // ← NUEVO
               currentAdvanceIndexByDay: {
                 ...conquistaData.currentAdvanceIndexByDay,
