@@ -1,7 +1,7 @@
-function MissionsPanel({ missions, onComplete }) {
+function MissionsPanel({ t, missions, onComplete }) {
   return (
     <div style={{ marginTop: "30px" }}>
-      <h2>Missions</h2>
+      <h2>{t.panels.missionsTitle}</h2>
 
       {missions.map((mission) => (
         <div
@@ -18,11 +18,11 @@ function MissionsPanel({ missions, onComplete }) {
           </h3>
 
           <p style={{ margin: "0 0 10px 0" }}>
-            Reward: {mission.xp} XP
+            {t.labels.reward}: {mission.xp} XP
           </p>
 
           <button onClick={() => onComplete(mission.xp)}>
-            Complete
+            {t.buttons.complete}
           </button>
         </div>
       ))}

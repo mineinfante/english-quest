@@ -1,4 +1,5 @@
 export default function ConquestCompletionPanel({
+  t,
   vivenciaId,
   conquistaId,
   onNextConquista,
@@ -8,17 +9,17 @@ export default function ConquestCompletionPanel({
     <div className="advance-card fade-container summary">
 
       <h2 className="advance-title">
-        Conquista completada
+        {t.panels.conquestCompletedTitle}
       </h2>
 
       <div className="advance-content">
 
         <p>
-          Has completado esta conquista con éxito.
+          {t.messages.conquestCompletedMessage}
         </p>
 
         <p style={{ marginTop: "8px", opacity: 0.8 }}>
-          Ahora puedes decidir cómo continuar tu progreso académico.
+          {t.messages.conquestNextStepMessage}
         </p>
 
         <div style={{ marginTop: "24px", display: "flex", flexDirection: "column", gap: "12px" }}>
@@ -27,14 +28,14 @@ export default function ConquestCompletionPanel({
             className="tab-button active"
             onClick={onNextConquista}
           >
-            Continuar con la siguiente conquista (mismo nivel CEFR)
+            {t.buttons.nextConquista}
           </button>
 
           <button
             className="tab-button"
             onClick={onNextVivencia}
           >
-            Continuar con la siguiente vivencia (mismo nivel CEFR)
+            {t.buttons.nextVivencia}
           </button>
 
         </div>

@@ -24,7 +24,15 @@ function App() {
   // 2️⃣ Estados de UI
   // =============================
   const [activeVivencia, setActiveVivencia] = useState("family")
-  
+
+  // =============================
+  // 🌍 Language State (i18n)
+  // =============================
+  const [currentLanguage, setCurrentLanguage] = useState(() => {
+    const savedLang = localStorage.getItem("language")
+    return savedLang || "en"
+  })
+
   const [activeConquista, setActiveConquista] = useState("A1")
   useEffect(() => {
     setPlayer((prev) => {
@@ -118,6 +126,11 @@ function App() {
   const [activeDay, setActiveDay] = useState(1)
   const [examScore, setExamScore] = useState("")
   const [pendingConquistaRedirect, setPendingConquistaRedirect] = useState(null)
+
+  // =============================
+  // 🌍 i18n Resolver
+  // =============================
+  const t = UI_TEXT[currentLanguage] || UI_TEXT["en"]
 
   // =============================
   // 3️⃣ Derivados
@@ -354,7 +367,7 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
       ...derivedAdvances,
       {
         id: "day-evaluation",
-        title: UI_TEXT.en.days.assessment,
+        title: t.days.assessment,
         dynamic: true
       }
     ]
@@ -513,6 +526,13 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
   useEffect(() => {
     localStorage.setItem("player", JSON.stringify(player))
   }, [player])
+
+  // =============================
+  // 🌍 Persist Language
+  // =============================
+  useEffect(() => {
+    localStorage.setItem("language", currentLanguage)
+  }, [currentLanguage])
 
   useEffect(() => {
     if (!activeVivencia || !activeConquista) return
@@ -701,6 +721,7 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
             [activeConquista]: {
               ...conquistaData,
               currentAdvanceIndex: newIndex,
+              currentAdvanceId: selectedAdvance.id,   // ← NUEVO
               currentAdvanceIndexByDay: {
                 ...conquistaData.currentAdvanceIndexByDay,
                 [nextDay]: newIndex
@@ -1292,22 +1313,31 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
   let evaluationMessage = null
 
   if (activeDay === "review-day") {
-    evaluationMessage = {
-      title: UI_TEXT.en.evaluation.review.title,
-      message: UI_TEXT.en.evaluation.review.message
-    }
+    evaluationMessage = resolveEvaluationMessage({
+      evaluationType: "review",
+      vivenciaId: activeVivencia,
+      conquistaId: activeConquista,
+      levelState,
+      t
+    }).fallback
   }
   else if (activeDay === "final-evaluation") {
-    evaluationMessage = {
-      title: UI_TEXT.en.evaluation.final.title,
-      message: UI_TEXT.en.evaluation.final.message
-    }
+    evaluationMessage = resolveEvaluationMessage({
+      evaluationType: "conquest",
+      vivenciaId: activeVivencia,
+      conquistaId: activeConquista,
+      levelState,
+      t
+    }).fallback
   }
   else if (currentAdvance?.id === "day-evaluation") {
-    evaluationMessage = {
-      title: UI_TEXT.en.evaluation.day.title,
-      message: UI_TEXT.en.evaluation.day.message
-    }
+    evaluationMessage = resolveEvaluationMessage({
+      evaluationType: "day",
+      vivenciaId: activeVivencia,
+      conquistaId: activeConquista,
+      levelState,
+      t
+    }).fallback
   }
 
   //RENDERIZA
@@ -1315,6 +1345,10 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
     <div style={{ padding: "20px" }}>
 
       <Header
+        t={t}
+        currentLanguage={currentLanguage}
+        setCurrentLanguage={setCurrentLanguage}
+        currentAdvanceId={levelState.currentAdvanceId}
         vivenciasList={vivenciasList}
         conquistasList={conquistasList}
         activeVivencia={activeVivencia}
@@ -1363,6 +1397,8 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
 
       <div className="dashboard-row">
         <AdvancePanel
+          t={t}
+          currentLanguage={currentLanguage}
           currentAdvance={currentAdvance}
           activeVivencia={activeVivencia}
           activeConquista={activeConquista}
@@ -1393,6 +1429,7 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
 
         <div className="player-wrapper">
           <PlayerPanel
+            t={t}
             xp={xp}
             level={level}
             currentLevelXP={currentLevelXP}
@@ -1403,6 +1440,7 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
       </div>
 
       <MissionsPanel
+        t={t}
         missions={missions}
         onComplete={completeMission}
       />

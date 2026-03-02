@@ -13,7 +13,8 @@ export function resolveEvaluationMessage({
   evaluationType,
   vivenciaId,
   conquistaId,
-  levelState
+  levelState,
+  t
 }) {
 
   const baseContext = {
@@ -29,7 +30,10 @@ export function resolveEvaluationMessage({
   })
 
   // 🔹 Fallback local mientras no usamos LLM
-  const fallback = buildFallbackMessage(baseContext)
+  const fallback = buildFallbackMessage({
+    ...baseContext,
+    t
+  })
 
   return {
     prompt,
@@ -68,26 +72,31 @@ Return ONLY JSON:
 /**
  * Fallback local si no usamos LLM
  */
-function buildFallbackMessage({ evaluationType }) {
+function buildFallbackMessage({ evaluationType, t }) {
 
   if (evaluationType === "conquest") {
     return {
-      title: "Es momento de tu Evaluación Final.",
-      message:
-        "Has completado todos los días requeridos. Ahora demostrarás tu progreso real. Respira, concéntrate y recuerda que esta evaluación representa tu crecimiento."
+      title: t.evaluation.final.title,
+      message: t.evaluation.final.message
     }
   }
 
   if (evaluationType === "day") {
     return {
-      title: "Es momento de tu Evaluación.",
-      message:
-        "Has completado los avances de este día. Esta evaluación confirmará tu comprensión antes de avanzar."
+      title: t.evaluation.day.title,
+      message: t.evaluation.day.message
+    }
+  }
+
+  if (evaluationType === "review") {
+    return {
+      title: t.evaluation.review.title,
+      message: t.evaluation.review.message
     }
   }
 
   return {
-    title: "Evaluación",
-    message: "Prepárate para demostrar tu progreso."
+    title: t.evaluation.day.title,
+    message: t.evaluation.day.message
   }
 }

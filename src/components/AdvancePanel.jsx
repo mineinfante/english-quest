@@ -1,8 +1,15 @@
 import ConquestCompletionPanel from "./ConquestCompletionPanel"
 import { UI_TEXT } from "../config/uiText"
 import { useEffect } from "react"
+import { PEDAGOGICAL_TEXT } from "../content/pedagogicalText"
+
+function resolveNestedKey(obj, path) {
+  return path.split(".").reduce((acc, key) => acc?.[key], obj)
+}
 
 export default function AdvancePanel({
+  t,
+  currentLanguage,
   currentAdvance,
   activeVivencia,
   activeConquista,
@@ -56,7 +63,7 @@ export default function AdvancePanel({
         {!isAdvanceRunning && (
           <>
             <h2 className="advance-title">
-              {UI_TEXT.en.panels.dayAssessmentTitle}
+              {t.panels.dayAssessmentTitle}
             </h2>
 
           {examData && (alreadyPassed || hasFailed) && (
@@ -69,8 +76,8 @@ export default function AdvancePanel({
             >
               {
                 alreadyPassed
-                  ? UI_TEXT.en.labels.statusCompleted
-                  : UI_TEXT.en.labels.statusPendingEvaluation
+                  ? t.labels.statusCompleted
+                  : t.labels.statusPendingEvaluation
               }
             </div>
           )}
@@ -78,21 +85,21 @@ export default function AdvancePanel({
             <div className="advance-content">
               {alreadyPassed ? (
                 <>
-                  <p>{UI_TEXT.en.messages.alreadyApproved}</p>
+                  <p>{t.messages.alreadyApproved}</p>
                   <div style={{ marginTop: "12px" }}>
-                    <p>{UI_TEXT.en.labels.attempts}: {examData.attempts}</p>
-                    <p>{UI_TEXT.en.labels.finalScore}: {examData.score}</p>
+                    <p>{t.labels.attempts}: {examData.attempts}</p>
+                    <p>{t.labels.finalScore}: {examData.score}</p>
                   </div>
                 </>
               ) : (
                 <>
-                  <p>{UI_TEXT.en.messages.dayAssessmentDescription}</p>
+                  <p>{t.messages.dayAssessmentDescription}</p>
                   <div style={{ marginTop: "20px" }}>
                     <button
                       className="tab-button active"
                       onClick={() => setIsAdvanceRunning(true)}
                     >
-                      {UI_TEXT.en.buttons.startAssessment}
+                      {t.buttons.startAssessment}
                     </button>
                   </div>
                 </>
@@ -104,16 +111,16 @@ export default function AdvancePanel({
         {isAdvanceRunning && !alreadyPassed && (
           <>
             <h2 className="advance-title">
-              {UI_TEXT.en.panels.dayAssessmentTitle}
+              {t.panels.dayAssessmentTitle}
             </h2>
 
             <div className="advance-content">
               <p style={{ opacity: 0.7 }}>
-                {UI_TEXT.en.messages.enterExamScore}
+                {t.messages.enterExamScore}
               </p>
 
               <label style={{ display: "block", marginBottom: "6px" }}>
-                {UI_TEXT.en.labels.examScore}
+                {t.labels.examScore}
               </label>
 
               <input
@@ -129,14 +136,14 @@ export default function AdvancePanel({
                   className="tab-button active"
                   onClick={handleSubmitDayExam}
                 >
-                  {UI_TEXT.en.buttons.submitAssessment}
+                  {t.buttons.submitAssessment}
                 </button>
 
                 <button
                   className="tab-button"
                   onClick={() => setIsAdvanceRunning(false)}
                 >
-                  {UI_TEXT.en.buttons.back}
+                  {t.buttons.back}
                 </button>
               </div>
             </div>
@@ -158,7 +165,7 @@ export default function AdvancePanel({
         {!isAdvanceRunning && (
           <>
             <h2 className="advance-title">
-              {UI_TEXT.en.days.review}
+              {t.days.review}
             </h2>
 
             <div className="advance-content">
@@ -166,7 +173,7 @@ export default function AdvancePanel({
                 className="tab-button active"
                 onClick={() => setIsAdvanceRunning(true)}
               >
-                {UI_TEXT.en.buttons.review}
+                {t.buttons.review}
               </button>
             </div>
           </>
@@ -175,13 +182,13 @@ export default function AdvancePanel({
         {isAdvanceRunning && (
           <>
             <h2 className="advance-title">
-              {UI_TEXT.en.days.review}
+              {t.days.review}
             </h2>
 
             <div className="advance-content">
 
               <label style={{ display: "block", marginBottom: "6px" }}>
-                {UI_TEXT.en.labels.reviewScore}
+                {t.labels.reviewScore}
               </label>
 
               <input
@@ -197,14 +204,14 @@ export default function AdvancePanel({
                   className="tab-button active"
                   onClick={handleSubmitReview}
                 >
-                  {UI_TEXT.en.buttons.submitAssessment}
+                  {t.buttons.submitAssessment}
                 </button>
 
                 <button
                   className="tab-button"
                   onClick={() => setIsAdvanceRunning(false)}
                 >
-                  {UI_TEXT.en.buttons.back}
+                  {t.buttons.back}
                 </button>
               </div>
 
@@ -232,6 +239,7 @@ console.log("finalExam:", levelState?.finalExam)
     if (finalExam?.passed && levelState?.justCompletedConquest) {
       return (
         <ConquestCompletionPanel
+          t={t}
           vivenciaId={activeVivencia}
           conquistaId={activeConquista}
           onNextConquista={() => {
@@ -268,8 +276,8 @@ console.log("finalExam:", levelState?.finalExam)
           >
             {
               finalExam.passed
-                ? UI_TEXT.en.labels.statusCompleted
-                : UI_TEXT.en.labels.statusPendingEvaluation
+                ? t.labels.statusCompleted
+                : t.labels.statusPendingEvaluation
             }
           </div>
         )}
@@ -277,7 +285,7 @@ console.log("finalExam:", levelState?.finalExam)
         {!isAdvanceRunning && (
           <>
             <h2 className="advance-title">
-              {UI_TEXT.en.panels.finalAssessmentTitle}
+              {t.panels.finalAssessmentTitle}
             </h2>
 
             <div className="advance-content">
@@ -292,8 +300,8 @@ console.log("finalExam:", levelState?.finalExam)
                 }}
               >
                 {needsReview
-                  ? UI_TEXT.en.buttons.review
-                  : UI_TEXT.en.buttons.startAssessment}
+                  ? t.buttons.review
+                  : t.buttons.startAssessment}
               </button>
             </div>
           </>
@@ -302,13 +310,13 @@ console.log("finalExam:", levelState?.finalExam)
         {isAdvanceRunning && (
           <>
             <h2 className="advance-title">
-              {UI_TEXT.en.panels.finalAssessmentTitle}
+              {t.panels.finalAssessmentTitle}
             </h2>
 
             <div className="advance-content">
 
               <label>
-                {UI_TEXT.en.labels.examScore}
+                {t.labels.examScore}
               </label>
 
               <input
@@ -324,14 +332,14 @@ console.log("finalExam:", levelState?.finalExam)
                   className="tab-button active"
                   onClick={handleSubmitFinalExam}
                 >
-                  {UI_TEXT.en.buttons.submitAssessment}
+                  {t.buttons.submitAssessment}
                 </button>
 
                 <button
                   className="tab-button"
                   onClick={() => setIsAdvanceRunning(false)}
                 >
-                  {UI_TEXT.en.buttons.back}
+                  {t.buttons.back}
                 </button>
               </div>
             </div>
@@ -367,10 +375,10 @@ console.log("finalExam:", levelState?.finalExam)
         <div className={`status-badge ${badgeClass}`}>
           {
             badgeClass === "status-badge--completed"
-              ? UI_TEXT.en.labels.statusCompleted
+              ? t.labels.statusCompleted
               : badgeClass === "status-badge--failed"
-              ? UI_TEXT.en.labels.statusPendingEvaluation
-              : UI_TEXT.en.labels.statusStarted
+              ? t.labels.statusPendingEvaluation
+              : t.labels.statusStarted
           }
         </div>
       )}
@@ -378,12 +386,19 @@ console.log("finalExam:", levelState?.finalExam)
       {!isAdvanceRunning && (
         <>
           <h2 className="advance-title">
-            {UI_TEXT.en.panels.advancePreview}
+            {t.panels.advancePreview}
           </h2>
 
           <div className="advance-content">
             <p><strong>ID:</strong> {currentAdvance.id}</p>
-            <p><strong>{UI_TEXT.en.labels.objective}:</strong> {currentAdvance.objective}</p>
+            <p>
+              <strong>{t.labels.objective}:</strong>{" "}
+              {
+                PEDAGOGICAL_TEXT[currentLanguage]?.[activeConquista]?.[
+                  currentAdvance.order - 1
+                ]?.objective
+              }
+            </p>
 
             <hr style={{ margin: "20px 0", opacity: 0.2 }} />
 
@@ -395,8 +410,8 @@ console.log("finalExam:", levelState?.finalExam)
               }}
             >
               {isStarted
-                ? UI_TEXT.en.buttons.continue
-                : UI_TEXT.en.buttons.startAdvance}
+                ? t.buttons.continue
+                : t.buttons.startAdvance}
             </button>
           </div>
         </>
@@ -405,13 +420,13 @@ console.log("finalExam:", levelState?.finalExam)
       {isAdvanceRunning && (
         <>
           <h2 className="advance-title">
-            {UI_TEXT.en.panels.advanceWorkspace}
+            {t.panels.advanceWorkspace}
           </h2>
 
           <div className="advance-content">
 
             <label>
-              {UI_TEXT.en.labels.manualScore}
+              {t.labels.manualScore}
             </label>
 
             <input
@@ -428,7 +443,7 @@ console.log("finalExam:", levelState?.finalExam)
                 className="tab-button"
                 onClick={() => setIsAdvanceRunning(false)}
               >
-                {UI_TEXT.en.buttons.back}
+                {t.buttons.back}
               </button>
             </div>
 

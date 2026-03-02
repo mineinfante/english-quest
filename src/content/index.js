@@ -8,11 +8,9 @@ function createAdvance(config) {
   const requiredFields = [
     "id",
     "order",
-    "title",
     "vivencia",
     "level",
     "type",
-    "objective",
     "linguisticTargets",
     "successCriteria",
     "buildPrompt"
@@ -146,12 +144,14 @@ function generateAdvancesForLevel({ vivenciaId, levelId, context, template }) {
     return createAdvance({
     id: advanceId,
     order: item.order,
-    title: item.title,
+    title: null,
+    titleKey: `advance.${levelId}.${item.order}.title`,
     vivencia: vivenciaId,
     level: levelId,
     type: item.type,
 
-    objective: `Develop ${rules.complexity} English skills in ${context}.`,
+    objective: null,
+    objectiveKey: `advance.${levelId}.${item.order}.objective`,
 
     linguisticTargets: {
         grammar: rules.grammar,

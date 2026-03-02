@@ -1,5 +1,5 @@
 
-function PlayerPanel({ xp, level, currentLevelXP, progressPercent, onGainXp }) {
+function PlayerPanel({ t, xp, level, currentLevelXP, progressPercent, onGainXp }) {    
   return (
     <div
         style={{
@@ -12,11 +12,11 @@ function PlayerPanel({ xp, level, currentLevelXP, progressPercent, onGainXp }) {
         maxWidth: "420px"
         }}
     >
-        <h2>Player Status</h2>
+        <h2>{t.panels.playerStatus}</h2>
         <h2 style={{ marginBottom: "4px" }}>
             Level {level}
         </h2>
-        <p>Total XP: {xp}</p>
+        <p>{t.labels.totalXP}: {xp}</p>
 
         <div
         style={{
@@ -42,7 +42,7 @@ function PlayerPanel({ xp, level, currentLevelXP, progressPercent, onGainXp }) {
         </p>
 
         <button onClick={onGainXp}>
-            Gain 10 XP
+            {t.buttons.gainXP}
         </button>
     </div>
   )

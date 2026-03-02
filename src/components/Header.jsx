@@ -13,6 +13,11 @@ import { CSS } from "@dnd-kit/utilities"
 import { CONTENT } from "../content"
 import EvaluationMessagePanel from "./EvaluationMessagePanel"
 import { UI_TEXT } from "../config/uiText"
+import { PEDAGOGICAL_TEXT } from "../content/pedagogicalText"
+
+function resolveNestedKey(obj, path) {
+  return path.split(".").reduce((acc, key) => acc?.[key], obj)
+}
 
 function SortableAdvanceButton({
   id,
@@ -124,6 +129,10 @@ console.log("IS STARTED?", id, progress?.started)
 }
 
 export default function Header({
+  t,
+  currentLanguage,
+  setCurrentLanguage,
+  currentAdvanceId,
   vivenciasList,
   conquistasList,
   activeVivencia,
@@ -154,6 +163,24 @@ export default function Header({
 
   return (
     <div className="header-wrapper">
+
+    {/* 🌍 Language Selector */}
+    <div className="header-row" style={{ justifyContent: "flex-end" }}>
+      <select
+        value={currentLanguage}
+        onChange={(e) => setCurrentLanguage(e.target.value)}
+        style={{
+          padding: "4px 8px",
+          borderRadius: "6px",
+          background: "rgba(255,255,255,0.1)",
+          color: "white",
+          border: "1px solid rgba(255,255,255,0.2)"
+        }}
+      >
+        <option value="en">English</option>
+        <option value="es">Español</option>
+      </select>
+    </div>
 
       {/* Vivencias */}
       <div className="header-row">
@@ -296,9 +323,9 @@ export default function Header({
                   disabled={isLocked}
                 >
                   {day === "final-evaluation"
-                  ? UI_TEXT.en.days.assessment
+                  ? t.days.assessment
                   : day === "review-day"
-                  ? UI_TEXT.en.days.review
+                  ? t.days.review
                   : day
                   }
 
@@ -366,7 +393,7 @@ export default function Header({
               strategy={horizontalListSortingStrategy}
             >
               {advances.map((advance, index) => {
-                const isActive = index === currentAdvanceIndex;
+                const isActive = advance.id === currentAdvanceId;
 
                 let progress;
 
@@ -385,7 +412,11 @@ export default function Header({
                   <SortableAdvanceButton
                     key={advance.id}
                     id={advance.id}
-                    title={advance.title}
+                    title={
+                      PEDAGOGICAL_TEXT[currentLanguage]?.[activeConquista]?.[
+                        advance.order - 1
+                      ]?.title
+                    }
                     isActiveProp={isActive}
                     progress={progress}
                     data-index={index}
