@@ -8,6 +8,7 @@ import { createInitialPlayer } from "./state/createInitialPlayer"
 import { resolvePassingScore } from "./engine/passingScoreEngine.js"
 import { resolveEvaluationMessage } from "./engine/evaluationMessageEngine"
 import { UI_TEXT } from "./config/uiText"
+import { PEDAGOGICAL_TEXT } from "./content/pedagogicalText"
 
 function App() {
 
@@ -34,12 +35,43 @@ function App() {
   })
 
   const [activeConquista, setActiveConquista] = useState("A1")
-  useEffect(() => {
-    setPlayer((prev) => {
-      const vivenciaData = prev.vivencias[activeVivencia]
-      const conquistaData = vivenciaData?.[activeConquista]
+  const [pendingTargetConquista, setPendingTargetConquista] = useState(null)
 
-      if (!conquistaData?.justCompletedConquest) return prev
+  useEffect(() => {
+
+    const conquistaState =
+      player.vivencias[activeVivencia]?.[activeConquista]
+
+    if (!conquistaState) return
+
+    const savedDay = conquistaState.lastActiveDay ?? 1
+    setActiveDay(savedDay)
+
+    const savedIndex =
+      conquistaState.currentAdvanceIndexByDay?.[savedDay] ?? 0
+
+    const baseAdvances =
+      CONTENT[activeVivencia]?.[activeConquista]?.advances ?? []
+
+    const shouldShowDayEval =
+      conquistaState.dayExams?.[savedDay]?.passed ||
+      (conquistaState.dayExams?.[savedDay]?.attempts ?? 0) > 0
+
+    let advancesForDay = [...baseAdvances]
+
+    if (shouldShowDayEval) {
+      advancesForDay.push({ id: "day-evaluation" })
+    }
+
+    const restoredId =
+      advancesForDay[savedIndex]?.id ||
+      advancesForDay[0]?.id ||
+      null
+
+    setPlayer((prev) => {
+
+      const vivenciaData = prev.vivencias[activeVivencia]
+      const conquistaData = vivenciaData[activeConquista]
 
       return {
         ...prev,
@@ -49,55 +81,36 @@ function App() {
             ...vivenciaData,
             [activeConquista]: {
               ...conquistaData,
-              justCompletedConquest: false
+              currentAdvanceId: restoredId
             }
           }
         }
       }
     })
-    
-    const conquistaState =
-      player.vivencias[activeVivencia]?.[activeConquista]
 
-    if (!conquistaState) return
-
-    const savedDay = conquistaState.lastActiveDay ?? 1
-
-    setActiveDay(savedDay)
-
-    const savedAdvanceIndex =
-      conquistaState.currentAdvanceIndexByDay?.[savedDay] ?? 0
-
-    setPlayer((prev) => {
-      const vivenciaData = prev.vivencias[activeVivencia]
-      const levelData = vivenciaData[activeConquista]
-
-      return {
-        ...prev,
-        vivencias: {
-          ...prev.vivencias,
-          [activeVivencia]: {
-            ...vivenciaData,
-            [activeConquista]: {
-              ...levelData,
-              currentAdvanceIndex: savedAdvanceIndex
-            }
-          }
-        }
-      }
-    })
   }, [activeVivencia, activeConquista])
 
   const handleChangeConquista = (targetConquista) => {
 
-    if (targetConquista === activeConquista) return
+    if (targetConquista === activeConquista) {
+
+      const conquistaState =
+        player.vivencias[activeVivencia]?.[activeConquista]
+
+      const restoreDay =
+        conquistaState?.lastActiveDay ?? 1
+
+      setActiveDay(restoreDay)
+
+      return
+    }
 
     const conquistas = conquistasList
     const currentIndex = conquistas.indexOf(activeConquista)
     const targetIndex = conquistas.indexOf(targetConquista)
 
-    // Solo validamos si intenta avanzar hacia adelante
-    if (targetIndex > 0) {
+    // 🔴 Solo bloquear si intenta avanzar hacia adelante
+    if (targetIndex > currentIndex) {
 
       const previousConquista =
         conquistas[targetIndex - 1]
@@ -107,26 +120,27 @@ function App() {
 
       if (!previousState?.finalExam?.passed) {
 
-        setPendingConquistaRedirect(targetConquista)
+        // 🔴 Guardar intención de navegación
+        setPendingTargetConquista(targetConquista)
 
-        setActiveConquista(previousConquista)
+        if (activeConquista !== previousConquista) {
+          setActiveConquista(previousConquista)
+        }
 
-        setTimeout(() => {
-          setActiveDay("final-evaluation")
-        }, 0)
-
+        setActiveDay("final-evaluation")
         return
       }
     }
 
+    // 🟢 Permitir cambio normal
     setActiveConquista(targetConquista)
   }
+
   const [isAdvanceRunning, setIsAdvanceRunning] = useState(false)
   const [manualScore, setManualScore] = useState("")
   const [activeDay, setActiveDay] = useState(1)
   const [examScore, setExamScore] = useState("")
-  const [pendingConquistaRedirect, setPendingConquistaRedirect] = useState(null)
-
+  
   // =============================
   // 🌍 i18n Resolver
   // =============================
@@ -348,12 +362,20 @@ console.log("Day Exams:", levelState?.dayExams)
   const isFinalEvaluationDay =
     activeDay === "final-evaluation"
 
-console.log("E3 Ready:", isConquistaReadyForFinalExam)
-
   // =============================
   // 🟣 Derived Advances (E2 + E3)
   // =============================
   let derivedAdvances = [...advances]
+
+  derivedAdvances = derivedAdvances.map((advance) => {
+
+    if (advance.title) return advance
+
+    return {
+      ...advance,
+      title: `${advance.type.replace("-", " ")} ${advance.order}`
+    }
+  })
 
   // E2 — Día evaluation
   if (shouldShowDayEvaluation) {
@@ -497,6 +519,22 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
       const bonusXP = didPass ? 3 : 0
       const totalXP = baseXP + bonusXP
 
+      const currentIndex = currentAdvanceIndex
+      const nextIndex = currentIndex + 1
+
+      let nextAdvanceId = conquistaData.currentAdvanceId
+      let updatedIndexByDay = { ...conquistaData.currentAdvanceIndexByDay }
+
+      if (nextIndex < advances.length) {
+        // Avance normal
+        nextAdvanceId = advances[nextIndex].id
+        updatedIndexByDay[activeDay] = nextIndex
+      } else {
+        // 🔴 Era el último avance → mover a evaluación
+        nextAdvanceId = "day-evaluation"
+        updatedIndexByDay[activeDay] = advances.length
+      }
+
       return {
         ...prev,
         vivencias: {
@@ -506,6 +544,8 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
             [activeConquista]: {
               ...conquistaData,
               xp: conquistaData.xp + totalXP,
+              currentAdvanceId: nextAdvanceId,
+              currentAdvanceIndexByDay: updatedIndexByDay,
               advancesProgress: {
                 ...conquistaData.advancesProgress,
                 [advanceKey]: {
@@ -531,25 +571,12 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
     localStorage.setItem("player", JSON.stringify(player))
   }, [player])
 
-  // =============================
-  // 🌍 Persist Language
-  // =============================
   useEffect(() => {
-    localStorage.setItem("language", currentLanguage)
-  }, [currentLanguage])
-
-  useEffect(() => {
-    if (!activeVivencia || !activeConquista) return
-
     setPlayer((prev) => {
       const vivenciaData = prev.vivencias[activeVivencia]
       const conquistaData = vivenciaData?.[activeConquista]
 
-      if (!conquistaData) return prev
-
-      if (conquistaData.lastActiveDay === activeDay) {
-        return prev
-      }
+      if (!conquistaData?.justCompletedConquest) return prev
 
       return {
         ...prev,
@@ -559,17 +586,27 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
             ...vivenciaData,
             [activeConquista]: {
               ...conquistaData,
-              lastActiveDay: activeDay
+              justCompletedConquest: false
             }
           }
         }
       }
     })
-  }, [activeDay, activeVivencia, activeConquista])
-  
+  }, [activeConquista])
+
+  // =============================
+  // 🌍 Persist Language
+  // =============================
   useEffect(() => {
-    setIsAdvanceRunning(false)
-  }, [currentAdvanceIndex, activeVivencia, activeConquista])
+    localStorage.setItem("language", currentLanguage)
+  }, [currentLanguage])
+
+  useEffect(() => {
+    // 🔴 No cerrar workspace si estamos entrando en review-day
+    if (activeDay !== "review-day") {
+      setIsAdvanceRunning(false)
+    }
+  }, [activeVivencia, activeConquista])
 
   // =============================
   // 🟣 E2 — Unlock Day Exam
@@ -616,11 +653,6 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
     // 🔹 Solo mover automáticamente si se desbloqueó ahora
     if (didUnlockNow) {
       setTimeout(() => {
-        const dayEvalIndex = derivedAdvances.findIndex(
-          (a) => a.id === "day-evaluation"
-        )
-
-        if (dayEvalIndex === -1) return
 
         setPlayer((prev) => {
           const vivenciaData = prev.vivencias[activeVivencia]
@@ -634,7 +666,7 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
                 ...vivenciaData,
                 [activeConquista]: {
                   ...conquistaData,
-                  currentAdvanceIndex: dayEvalIndex,
+                  currentAdvanceId: "day-evaluation",
                   currentAdvanceIndexByDay: {
                     ...conquistaData.currentAdvanceIndexByDay,
                     [activeDay]: dayEvalIndex
@@ -699,6 +731,7 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
 
   const changeAdvance = (newIndex) => {
 
+    setIsAdvanceRunning(false)
     const selectedAdvance = derivedAdvances[newIndex]
 
     // Determinar cuál será el día real
@@ -727,7 +760,7 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
               currentAdvanceId: selectedAdvance.id,   // ← NUEVO
               currentAdvanceIndexByDay: {
                 ...conquistaData.currentAdvanceIndexByDay,
-                [nextDay]: newIndex
+                [activeDay]: newIndex   // 🔴 FIX REAL
               }
             }
           }
@@ -737,11 +770,55 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
   }
 
   const changeDay = (day) => {
+
     setActiveDay(day)
 
     setPlayer((prev) => {
+
       const vivenciaData = prev.vivencias[activeVivencia]
       const conquistaData = vivenciaData[activeConquista]
+
+      const savedIndex =
+        conquistaData.currentAdvanceIndexByDay?.[day] ?? 0
+
+      // 🔴 IMPORTANTE: usar derivedAdvances reales del día
+      const advancesForDay = (() => {
+
+        const base =
+          CONTENT[activeVivencia]?.[activeConquista]?.advances ?? []
+
+        const examData =
+          conquistaData.dayExams?.[day]
+
+        const showDayEval =
+          base.length > 0 &&
+          (
+            base.every((advance) => {
+              const progress =
+                conquistaData.advancesProgress?.[
+                  `${day}-${advance.id}`
+                ]
+              return progress?.finished === true &&
+                    progress?.passed === true
+            })
+            ||
+            (examData?.attempts ?? 0) > 0
+          )
+
+        if (showDayEval) {
+          return [
+            ...base,
+            { id: "day-evaluation" }
+          ]
+        }
+
+        return base
+      })()
+
+      const restoredAdvanceId =
+        advancesForDay[savedIndex]?.id ||
+        advancesForDay[0]?.id ||
+        null
 
       return {
         ...prev,
@@ -751,7 +828,8 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
             ...vivenciaData,
             [activeConquista]: {
               ...conquistaData,
-              lastActiveDay: day
+              lastActiveDay: day,
+              currentAdvanceId: restoredAdvanceId
             }
           }
         }
@@ -832,12 +910,16 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
     if (isNaN(score)) return
 
     const passed = score >= dayExamPassingScore
+    const structuralDay = levelState.currentDay
+    const minDaysRequired =
+      CONTENT[activeVivencia]?.[activeConquista]?.meta?.minDaysRequired ?? 1
+
+    const isLastDay = structuralDay >= minDaysRequired
 
     setPlayer((prev) => {
       const vivenciaData = prev.vivencias[activeVivencia]
       const conquistaData = vivenciaData[activeConquista]
 
-      const structuralDay = conquistaData.currentDay
       const currentExam = conquistaData.dayExams[structuralDay]
 
       const updatedDayExams = {
@@ -852,6 +934,7 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
 
       // 🔴 Si NO aprueba, solo guarda intento
       if (!passed) {
+
         return {
           ...prev,
           vivencias: {
@@ -860,6 +943,7 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
               ...vivenciaData,
               [activeConquista]: {
                 ...conquistaData,
+                currentAdvanceId: "day-evaluation", // 🔴 FIX CLAVE
                 dayExams: updatedDayExams
               }
             }
@@ -868,14 +952,10 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
       }
 
       // 🟢 Si aprueba:
-
-      const minDaysRequired =
-        CONTENT[activeVivencia]?.[activeConquista]?.meta?.minDaysRequired ?? 1
-
-      const isLastDay = structuralDay >= minDaysRequired
-
       if (isLastDay) {
-        // Solo guarda aprobado, no avanza más
+
+        setActiveDay("final-evaluation")
+
         return {
           ...prev,
           vivencias: {
@@ -884,7 +964,8 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
               ...vivenciaData,
               [activeConquista]: {
                 ...conquistaData,
-                dayExams: updatedDayExams
+                dayExams: updatedDayExams,
+                currentAdvanceId: "conquista-evaluation"
               }
             }
           }
@@ -895,6 +976,13 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
 
       // 🔹 Sincronizar navegación visual SOLO si aprueba
       setActiveDay(nextDay)
+
+      const firstAdvance =
+        CONTENT[activeVivencia]?.[activeConquista]?.advances?.[0]
+
+      const firstAdvanceId = firstAdvance?.id || null
+
+      const firstAdvanceKey = `${nextDay}-${firstAdvanceId}`
 
       return {
         ...prev,
@@ -909,7 +997,7 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
                 conquistaData.maxDayUnlocked ?? 1,
                 nextDay
               ),
-              currentAdvanceIndex: 0,
+              currentAdvanceId: firstAdvanceId,
               dayExams: updatedDayExams
             }
           }
@@ -918,7 +1006,13 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
     })
 
     setExamScore("")
-    setIsAdvanceRunning(false)
+
+    // 🔴 Solo cerrar workspace si NO es último día
+    if (!isLastDay) {
+      setIsAdvanceRunning(false)
+    } else {
+      setIsAdvanceRunning(true)   // abrir evaluación final automáticamente
+    }
   }
 
   const handleSubmitFinalExam = () => {
@@ -932,13 +1026,67 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
 
     if (!passed) {
       setActiveDay("review-day")
+      setIsAdvanceRunning(false)
     }
 
     setPlayer((prev) => {
+
       const vivenciaData = prev.vivencias[activeVivencia]
       const conquistaData = vivenciaData[activeConquista]
-
       const currentFinalExam = conquistaData.finalExam
+
+      const minDaysRequired =
+        CONTENT[activeVivencia]?.[activeConquista]?.meta?.minDaysRequired ?? 1
+
+      if (!passed) {
+        return {
+          ...prev,
+          vivencias: {
+            ...prev.vivencias,
+            [activeVivencia]: {
+              ...vivenciaData,
+              [activeConquista]: {
+                ...conquistaData,
+                finalExam: {
+                  ...currentFinalExam,
+                  attempts: currentFinalExam.attempts + 1,
+                  score,
+                  passed: false
+                },
+                lastActiveDay: "review-day",
+                currentAdvanceId: "conquista-evaluation"
+              }
+            }
+          }
+        }
+      }
+
+      // 🔴 CONSOLIDACIÓN COMPLETA
+      const advances =
+        CONTENT[activeVivencia]?.[activeConquista]?.advances ?? []
+
+      const updatedProgress = { ...conquistaData.advancesProgress }
+      const updatedDayExams = { ...conquistaData.dayExams }
+
+      for (let day = 1; day <= minDaysRequired; day++) {
+
+        advances.forEach((advance) => {
+          const key = `${day}-${advance.id}`
+
+          updatedProgress[key] = {
+            ...updatedProgress[key],
+            started: true,
+            finished: true,
+            passed: true
+          }
+        })
+
+        updatedDayExams[day] = {
+          ...updatedDayExams[day],
+          unlocked: true,
+          passed: true
+        }
+      }
 
       return {
         ...prev,
@@ -952,103 +1100,68 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
                 ...currentFinalExam,
                 attempts: currentFinalExam.attempts + 1,
                 score,
-                passed
+                passed: true
               },
+              advancesProgress: updatedProgress,
+              dayExams: updatedDayExams,
+              currentDay: minDaysRequired,
+              maxDayUnlocked: minDaysRequired,
               justCompletedConquest:
-                passed && !pendingConquistaRedirect
+                !pendingTargetConquista
                   ? true
-                  : conquistaData.justCompletedConquest
+                  : conquistaData.justCompletedConquest,
+              lastActiveDay: "final-evaluation",
+              currentAdvanceId: "conquista-evaluation"
             }
           }
         }
       }
+
     })
 
-    if (passed && pendingConquistaRedirect) {
+    if (passed && pendingTargetConquista) {
 
+      const target = pendingTargetConquista
+
+      const firstAdvance =
+        CONTENT[activeVivencia]?.[target]?.advances?.[0]
+
+      const firstAdvanceId = firstAdvance?.id ?? null
+
+      setPendingTargetConquista(null)
+
+      setActiveConquista(target)
+      setActiveDay(1)
+
+      // 🔴 Forzar avance inicial correctamente
       setPlayer((prev) => {
-
         const vivenciaData = prev.vivencias[activeVivencia]
-        const conquistas = Object.keys(vivenciaData).filter(k => k !== "meta")
-
-        const targetIndex = conquistas.indexOf(pendingConquistaRedirect)
-        const previousIndex = targetIndex - 1
-
-        const updatedVivencia = { ...vivenciaData }
-
-        // 🔹 Marcar TODAS las conquistas hasta la previa inmediata como aprobadas
-        for (let i = 0; i <= previousIndex; i++) {
-
-          const conquistaId = conquistas[i]
-          const conquistaData = updatedVivencia[conquistaId]
-
-          const minDaysRequired =
-            CONTENT[activeVivencia]?.[conquistaId]?.meta?.minDaysRequired ?? 1
-
-          const advances =
-            CONTENT[activeVivencia]?.[conquistaId]?.advances ?? []
-
-          const updatedProgress = { ...conquistaData.advancesProgress }
-          const updatedDayExams = { ...conquistaData.dayExams }
-
-          for (let day = 1; day <= minDaysRequired; day++) {
-
-            advances.forEach((advance) => {
-              const key = `${day}-${advance.id}`
-
-              updatedProgress[key] = {
-                ...updatedProgress[key],
-                started: true,
-                finished: true,
-                passed: true
-              }
-            })
-
-            updatedDayExams[day] = {
-              ...updatedDayExams[day],
-              unlocked: true,
-              passed: true
-            }
-          }
-
-          updatedVivencia[conquistaId] = {
-            ...conquistaData,
-            maxDayUnlocked: minDaysRequired,
-            currentDay: minDaysRequired,
-            lastActiveDay: minDaysRequired,
-            advancesProgress: updatedProgress,
-            dayExams: updatedDayExams,
-            finalExam: {
-              ...conquistaData.finalExam,
-              unlocked: true,
-              passed: true
-            }
-          }
-        }
+        const targetData = vivenciaData[target]
 
         return {
           ...prev,
           vivencias: {
             ...prev.vivencias,
-            [activeVivencia]: updatedVivencia
+            [activeVivencia]: {
+              ...vivenciaData,
+              [target]: {
+                ...targetData,
+                advancesOrder:
+                  CONTENT[activeVivencia]?.[target]?.advances?.map(a => a.id) ?? [],
+                currentAdvanceId: firstAdvanceId,
+                lastActiveDay: 1
+              }
+            }
           }
         }
       })
 
-      const target = pendingConquistaRedirect
-
-      setPendingConquistaRedirect(null)
-      setActiveConquista(target)
-      setActiveDay(1)
-
-      setExamScore("")
       setIsAdvanceRunning(false)
 
       return
     }
 
     setExamScore("")
-    setIsAdvanceRunning(false)
   }
 
   // =============================
@@ -1172,10 +1285,10 @@ console.log("E3 Ready:", isConquistaReadyForFinalExam)
             ...vivenciaData,
             [activeConquista]: {
               ...conquistaData,
-              currentAdvanceIndex: dayEvalIndex,
+              currentAdvanceId: "day-evaluation",   // 🔴 CAMBIO CLAVE
               currentAdvanceIndexByDay: {
                 ...conquistaData.currentAdvanceIndexByDay,
-                [activeDay]: dayEvalIndex
+                [activeDay]: advances.length
               }
             }
           }

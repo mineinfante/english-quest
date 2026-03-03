@@ -38,10 +38,13 @@ export default function AdvancePanel({
 }) {
 
   useEffect(() => {
-    setIsAdvanceRunning(false)
+    // 🔴 No cerrar workspace automáticamente en review-day
+    if (activeDay !== "review-day") {
+      setIsAdvanceRunning(false)
+    }
   }, [activeDay])
 
-  if (!currentAdvance) return null
+  if (!currentAdvance && activeDay !== "final-evaluation" && !isReviewDay) return null
 
   /* ===================================================== */
   /* ================= DAY EVALUATION ==================== */
@@ -228,13 +231,22 @@ export default function AdvancePanel({
   /* ===================================================== */
 
   if (activeDay === "final-evaluation") {
-console.log("=== FINAL BLOCK ENTERED ===")
-console.log("activeDay:", activeDay)
-console.log("isReviewDay:", isReviewDay)
-console.log("needsReview:", needsReview)
-console.log("finalExam:", levelState?.finalExam)
 
     const finalExam = levelState?.finalExam || { passed: false, attempts: 0 }
+
+    if (finalExam?.passed && !levelState?.justCompletedConquest) {
+      return (
+        <div className="advance-card fade-container summary">
+          <h2 className="advance-title">
+            {t.panels.finalAssessmentTitle}
+          </h2>
+
+          <div className="advance-content">
+            <p>{t.labels.statusCompleted}</p>
+          </div>
+        </div>
+      )
+    }
 
     if (finalExam?.passed && levelState?.justCompletedConquest) {
       return (

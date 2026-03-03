@@ -63,9 +63,9 @@ export const UI_TEXT = {
       manualScore: "Manual Quiz Score (0–100)",
       objective: "Objective",
 
-      statusStarted: "Iniciado",
-      statusPendingEvaluation: "Falta evaluación",
-      statusCompleted: "Completado",
+      statusStarted: "Started",
+      statusPendingEvaluation: "Pending",
+      statusCompleted: "Completed",
       totalXP: "Total XP",
       reward: "Reward"
     },
@@ -173,7 +173,7 @@ export const UI_TEXT = {
       manualScore: "Puntuación manual (0–100)",
       objective: "Objetivo",
       statusStarted: "Iniciado",
-      statusPendingEvaluation: "Falta evaluación",
+      statusPendingEvaluation: "Pendiente",
       statusCompleted: "Completado",
       totalXP: "XP Total",
       reward: "Recompensa"

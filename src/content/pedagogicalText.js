@@ -14,39 +14,39 @@ export const PEDAGOGICAL_TEXT = {
         objective: "Improve comprehension and structured sentence building."
       },
       {
-        title: "Structured Response",
+        title: "Live it",
         objective: "Practice forming clear and structured responses."
       },
       {
-        title: "Everyday Patterns",
+        title: "Shape it",
         objective: "Apply common daily expressions with accuracy."
       },
       {
-        title: "Building Confidence",
+        title: "Pulish it",
         objective: "Increase fluency in short conversational exchanges."
       },
       {
-        title: "Controlled Practice",
+        title: "Give it Rhythm",
         objective: "Refine grammar control in guided exercises."
       },
       {
-        title: "Listening Focus",
+        title: "With Ease",
         objective: "Improve listening comprehension of simple phrases."
       },
       {
-        title: "Meaning in Context",
+        title: "My Mark",
         objective: "Understand meaning within short contextual dialogues."
       },
       {
-        title: "Clear Expression",
+        title: "My Moment",
         objective: "Express simple ideas clearly and correctly."
       },
       {
-        title: "Connected Speech",
+        title: "My Voice",
         objective: "Connect short sentences into coherent ideas."
       },
       {
-        title: "Mini Mastery",
+        title: "New Echo",
         objective: "Demonstrate integrated control of A1-level skills."
       }
     ]
@@ -63,43 +63,43 @@ export const PEDAGOGICAL_TEXT = {
         objective: "Fortalecer gramática y vocabulario fundamental."
       },
       {
-        title: "Darle Sonido",
+        title: "Hazlo Sonar",
         objective: "Mejorar comprensión y construcción estructurada de oraciones."
       },
       {
-        title: "Respuesta Estructurada",
+        title: "Vívelo",
         objective: "Practicar la formación de respuestas claras y estructuradas."
       },
       {
-        title: "Patrones Cotidianos",
+        title: "Dale Forma",
         objective: "Aplicar expresiones diarias comunes con precisión."
       },
       {
-        title: "Construyendo Confianza",
+        title: "Pulimos",
         objective: "Incrementar fluidez en intercambios conversacionales cortos."
       },
       {
-        title: "Práctica Controlada",
+        title: "Dale Ritmo",
         objective: "Refinar control gramatical en ejercicios guiados."
       },
       {
-        title: "Enfoque Auditivo",
+        title: "Con Naturalidad",
         objective: "Mejorar comprensión auditiva de frases simples."
       },
       {
-        title: "Significado en Contexto",
+        title: "Mi Huella",
         objective: "Comprender significado dentro de diálogos breves."
       },
       {
-        title: "Expresión Clara",
+        title: "Mi Momento",
         objective: "Expresar ideas simples con claridad y corrección."
       },
       {
-        title: "Habla Conectada",
+        title: "Mi Voz",
         objective: "Conectar oraciones cortas en ideas coherentes."
       },
       {
-        title: "Mini Dominio",
+        title: "Nuevo Eco",
         objective: "Demostrar control integrado de habilidades nivel A1."
       }
     ]

@@ -412,8 +412,16 @@ export default function Header({
                     key={advance.id}
                     id={advance.id}
                     title={
-                      PEDAGOGICAL_TEXT[currentLanguage]?.[activeConquista]
-                        ?.find(a => a.id === advance.id)?.title
+                      advance.id === "day-evaluation"
+                        ? t.days.assessment
+                        : advance.id === "conquista-evaluation"
+                        ? t.panels.finalAssessmentTitle
+                        : (
+                          PEDAGOGICAL_TEXT[currentLanguage]?.[activeConquista]?.[
+                            (advance.order ?? 1) - 1
+                          ]?.title
+                          ?? `${advance.type?.replace("-", " ")} ${advance.order ?? index + 1}`
+                        )
                     }
                     isActiveProp={isActive}
                     progress={progress}

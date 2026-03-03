@@ -62,34 +62,34 @@ const CONQUISTAS_CONFIG = [
 ]
 
 const A1_TEMPLATE = [
-  { order: 1, title: "First Echo", type: "reading" },
-  { order: 2, title: "First Attempt", type: "writing" },
-  { order: 3, title: "Make it Sound", type: "vocabulary" },
-  { order: 4, title: "Live it", type: "speaking" },
-  { order: 5, title: "Shape it", type: "review" },
-  { order: 6, title: "Polish it", type: "reading" },
-  { order: 7, title: "Give it Rhythm", type: "writing" },
-  { order: 8, title: "With Ease", type: "vocabulary" },
-  { order: 9, title: "My Mark", type: "speaking" },
-  { order: 10, title: "My Moment", type: "review" },
-  { order: 11, title: "My Voice", type: "integration" },
-  { order: 12, title: "New Echo", type: "final-review" }
+  { order: 1, type: "reading" },
+  { order: 2, type: "writing" },
+  { order: 3, type: "vocabulary" },
+  { order: 4, type: "speaking" },
+  { order: 5, type: "review" },
+  { order: 6, type: "reading" },
+  { order: 7, type: "writing" },
+  { order: 8, type: "vocabulary" },
+  { order: 9, type: "speaking" },
+  { order: 10, type: "review" },
+  { order: 11, type: "integration" },
+  { order: 12, type: "final-review" }
 ]
 
 function createLevelTemplate(levelId) {
   return [
-    { order: 1, title: "First Echo", type: "reading" },
-    { order: 2, title: "First Attempt", type: "writing" },
-    { order: 3, title: "Make it Sound", type: "vocabulary" },
-    { order: 4, title: "Live it", type: "speaking" },
-    { order: 5, title: "Shape it", type: "review" },
-    { order: 6, title: "Polish it", type: "reading" },
-    { order: 7, title: "Give it Rhythm", type: "writing" },
-    { order: 8, title: "With Ease", type: "vocabulary" },
-    { order: 9, title: "My Mark", type: "speaking" },
-    { order: 10, title: "My Moment", type: "review" },
-    { order: 11, title: "My Voice", type: "integration" },
-    { order: 12, title: "New Echo", type: "final-review" }
+    { order: 1, type: "reading" },
+    { order: 2, type: "writing" },
+    { order: 3, type: "vocabulary" },
+    { order: 4, type: "speaking" },
+    { order: 5, type: "review" },
+    { order: 6, type: "reading" },
+    { order: 7, type: "writing" },
+    { order: 8, type: "vocabulary" },
+    { order: 9, type: "speaking" },
+    { order: 10, type: "review" },
+    { order: 11, type: "integration" },
+    { order: 12, type: "final-review" }
   ]
 }
 
