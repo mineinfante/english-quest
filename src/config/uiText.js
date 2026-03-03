@@ -202,51 +202,51 @@ export const UI_TEXT = {
       A1: {
         1: { 
           title: "Primer Eco",
-          objective: "Develop basic English skills in the selected context."
+          objective: "Desarrollar habilidades básicas de inglés en el contexto seleccionado."
         },
         2: { 
           title: "Primer Intento",
-          objective: "Strengthen foundational grammar and vocabulary usage."
+          objective: "Fortalecer la gramática y el vocabulario fundamentales."
         },
         3: { 
-          title: "Make it Sound",
-          objective: "Improve comprehension and structured sentence building."
+          title: "Hazlo Sonar",
+          objective: "Mejorar la comprensión y la construcción estructurada de oraciones."
         },
         4: { 
-          title: "Live it",
-          objective: "Practice forming clear and structured responses."
+          title: "Vívelo",
+          objective: "Practicar la formación de respuestas claras y estructuradas."
         },
         5: { 
-          title: "Shape it",
-          objective: "Apply common daily expressions with accuracy."
+          title: "Dale Forma",
+          objective: "Aplicar expresiones diarias comunes con precisión."
         },
         6: { 
-          title: "Polish it",
-          objective: "Increase fluency in short conversational exchanges."
+          title: "Pulirlo",
+          objective: "Incrementar la fluidez en intercambios conversacionales cortos."
         },
         7: { 
-          title: "Give it Rhythm",
-          objective: "Refine grammar control in guided exercises."
+          title: "Dale Ritmo",
+          objective: "Refinar el control gramatical en ejercicios guiados."
         },
         8: { 
-          title: "With Ease",
-          objective: "Improve listening comprehension of simple phrases."
+          title: "Con Naturalidad",
+          objective: "Mejorar la comprensión auditiva de frases simples."
         },
         9: { 
-          title: "My Mark",
-          objective: "Understand meaning within short contextual dialogues."
+          title: "Mi Huella",
+          objective: "Comprender el significado dentro de diálogos breves."
         },
         10: { 
-          title: "My Moment",
-          objective: "Express simple ideas clearly and correctly."
+          title: "Mi Momento",
+          objective: "Expresar ideas simples con claridad y corrección."
         },
         11: { 
-          title: "My Voice",
-          objective: "Connect short sentences into coherent ideas."
+          title: "Mi Voz",
+          objective: "Conectar oraciones cortas en ideas coherentes."
         },
         12: { 
-          title: "New Echo",
-          objective: "Demonstrate integrated control of A1-level skills."
+          title: "Nuevo Eco",
+          objective: "Demostrar el control integrado de las habilidades del nivel A1."
         }
       },
       A2: {},
