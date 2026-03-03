@@ -1,7 +1,6 @@
 import ConquestCompletionPanel from "./ConquestCompletionPanel"
 import { UI_TEXT } from "../config/uiText"
 import { useEffect } from "react"
-import { PEDAGOGICAL_TEXT } from "../content/pedagogicalText"
 
 function resolveNestedKey(obj, path) {
   return path.split(".").reduce((acc, key) => acc?.[key], obj)
@@ -406,7 +405,8 @@ export default function AdvancePanel({
             <p>
               <strong>{t.labels.objective}:</strong>{" "}
               {
-                resolveNestedKey(t, currentAdvance.objectiveKey)
+                currentAdvance.order - 1
+                ?.objective
               }
             </p>
 

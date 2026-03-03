@@ -1,0 +1,21 @@
+* [33mb83cceb[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m migración completa a i18n
+* [33mbf45108[m[33m ([m[1;31morigin/main[m[33m)[m corrección de flujos aprobación evaluaciones días y conquistas
+* [33m1064b0b[m feat: complete full i18n architecture and ID-based resolution
+* [33m947f647[m fix: remove premature currentAdvanceIndex usage and stabilize ID-based architecture
+* [33m908842d[m feat: implement ID-based advance activation and scalable i18n architecture with pedagogical content separation
+* [33mba3d9f8[m State machine consolidation: fix day evaluation flow, final evaluation alignment, navigation stability and debug corrections
+* [33m2dbd66d[m fix: hierarchical CEFR navigation with structural mass completion and strict previous-level validation
+* [33m7d43c3e[m Stabilization: day evaluation flow + index persistence + structural fixes
+* [33m8ac5916[m E3.1 phase 1: review-day dynamic + UI_TEXT i18n base + assessment rename
+* [33m4af8900[m E3 stable: final conquest evaluation implemented and working
+* [33m57b2601[m[33m ([m[1;31morigin/feature/E3-conquista-evaluation[m[33m)[m E3: Move final evaluation to Day row and add reusable EvaluationMessagePanel foundation
+* [33m672bd51[m E2 completo: evaluacion dinamica de dia con examen formal, passingScore propio, persistencia y estatus visual
+* [33mde1371c[m E2 fase 1: evaluacion dinamica de dia con desbloqueo y bloqueo de avance automatico
+* [33md628ee8[m estado estable antes de implementar E2 evaluacion dinamica de dia
+* [33m4f405e3[m refactor: advance evaluation model with finished and passed states
+* [33m43da77d[m chore: stable before advance evaluation refactor
+* [33m7fbb1f9[m feat: add visual day status indicators
+* [33m496660f[m feat: implement day completion engine and per-day progress isolation
+* [33m18073fb[m Update: definición de estatus activo, iniciado y terminado
+* [33m17e1aba[m Fix drag reorder bug - decouple order from selection state
+* [33mc4d62ec[m Initial version - generative architecture My Own Experience system

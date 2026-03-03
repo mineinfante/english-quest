@@ -8,7 +8,6 @@ import { createInitialPlayer } from "./state/createInitialPlayer"
 import { resolvePassingScore } from "./engine/passingScoreEngine.js"
 import { resolveEvaluationMessage } from "./engine/evaluationMessageEngine"
 import { UI_TEXT } from "./config/uiText"
-import { PEDAGOGICAL_TEXT } from "./content/pedagogicalText"
 
 function App() {
 
