@@ -34,6 +34,64 @@ export const UI_TEXT = {
       C2: "Identity"
     },
 
+    advance: {
+      A1: {
+        1: { 
+          title: "First Echo",
+          objective: "Develop basic English skills in the selected context."
+        },
+        2: { 
+          title: "First Attempt",
+          objective: "Strengthen foundational grammar and vocabulary usage."
+        },
+        3: { 
+          title: "Make it Sound",
+          objective: "Improve comprehension and structured sentence building."
+        },
+        4: { 
+          title: "Live it",
+          objective: "Practice forming clear and structured responses."
+        },
+        5: { 
+          title: "Shape it",
+          objective: "Apply common daily expressions with accuracy."
+        },
+        6: { 
+          title: "Polish it",
+          objective: "Increase fluency in short conversational exchanges."
+        },
+        7: { 
+          title: "Give it Rhythm",
+          objective: "Refine grammar control in guided exercises."
+        },
+        8: { 
+          title: "With Ease",
+          objective: "Improve listening comprehension of simple phrases."
+        },
+        9: { 
+          title: "My Mark",
+          objective: "Understand meaning within short contextual dialogues."
+        },
+        10: { 
+          title: "My Moment",
+          objective: "Express simple ideas clearly and correctly."
+        },
+        11: { 
+          title: "My Voice",
+          objective: "Connect short sentences into coherent ideas."
+        },
+        12: { 
+          title: "New Echo",
+          objective: "Demonstrate integrated control of A1-level skills."
+        }
+      },
+      A2: {},
+      B1: {},
+      B2: {},
+      C1: {},
+      C2: {}
+    },
+
     buttons: {
       startAssessment: "Start Assessment",
       submitAssessment: "Submit Assessment",
@@ -112,33 +170,91 @@ export const UI_TEXT = {
       review: "Revisión"
     },
 
-  vivencias: {
-    family: "Con la Familia",
-    friends: "Con Amigos",
-    school: "En la Escuela",
-    jobInterview: "En una Entrevista de Trabajo",
-    work: "En el Trabajo",
-    travel: "Viajando",
-    shopping: "De Compras",
-    restaurant: "En un Restaurante",
-    phoneCall: "En una Llamada Telefónica",
-    doctor: "En el Doctor",
-    neighbors: "Con los Vecinos",
-    team: "En Equipo",
-    official: "En Trámites Oficiales",
-    meeting: "En una Reunión Formal",
-    difficult: "En Situaciones Difíciles",
-    custom: "Experiencia Personalizada"
-  },
+    vivencias: {
+      family: "Con la Familia",
+      friends: "Con Amigos",
+      school: "En la Escuela",
+      jobInterview: "En una Entrevista de Trabajo",
+      work: "En el Trabajo",
+      travel: "Viajando",
+      shopping: "De Compras",
+      restaurant: "En un Restaurante",
+      phoneCall: "En una Llamada Telefónica",
+      doctor: "En el Doctor",
+      neighbors: "Con los Vecinos",
+      team: "En Equipo",
+      official: "En Trámites Oficiales",
+      meeting: "En una Reunión Formal",
+      difficult: "En Situaciones Difíciles",
+      custom: "Experiencia Personalizada"
+    },
 
-  conquistas: {
-    A1: "Descubrimiento",
-    A2: "Funcional",
-    B1: "Comprensión",
-    B2: "Confianza",
-    C1: "Experiencia",
-    C2: "Identidad"
-  },
+    conquistas: {
+      A1: "Descubrimiento",
+      A2: "Funcional",
+      B1: "Comprensión",
+      B2: "Confianza",
+      C1: "Experiencia",
+      C2: "Identidad"
+    },
+
+    advance: {
+      A1: {
+        1: { 
+          title: "Primer Eco",
+          objective: "Develop basic English skills in the selected context."
+        },
+        2: { 
+          title: "Primer Intento",
+          objective: "Strengthen foundational grammar and vocabulary usage."
+        },
+        3: { 
+          title: "Make it Sound",
+          objective: "Improve comprehension and structured sentence building."
+        },
+        4: { 
+          title: "Live it",
+          objective: "Practice forming clear and structured responses."
+        },
+        5: { 
+          title: "Shape it",
+          objective: "Apply common daily expressions with accuracy."
+        },
+        6: { 
+          title: "Polish it",
+          objective: "Increase fluency in short conversational exchanges."
+        },
+        7: { 
+          title: "Give it Rhythm",
+          objective: "Refine grammar control in guided exercises."
+        },
+        8: { 
+          title: "With Ease",
+          objective: "Improve listening comprehension of simple phrases."
+        },
+        9: { 
+          title: "My Mark",
+          objective: "Understand meaning within short contextual dialogues."
+        },
+        10: { 
+          title: "My Moment",
+          objective: "Express simple ideas clearly and correctly."
+        },
+        11: { 
+          title: "My Voice",
+          objective: "Connect short sentences into coherent ideas."
+        },
+        12: { 
+          title: "New Echo",
+          objective: "Demonstrate integrated control of A1-level skills."
+        }
+      },
+      A2: {},
+      B1: {},
+      B2: {},
+      C1: {},
+      C2: {}
+    },
 
     buttons: {
       startAssessment: "Iniciar evaluación",

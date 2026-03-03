@@ -13,7 +13,6 @@ import { CSS } from "@dnd-kit/utilities"
 import { CONTENT } from "../content"
 import EvaluationMessagePanel from "./EvaluationMessagePanel"
 import { UI_TEXT } from "../config/uiText"
-import { PEDAGOGICAL_TEXT } from "../content/pedagogicalText"
 
 function resolveNestedKey(obj, path) {
   return path.split(".").reduce((acc, key) => acc?.[key], obj)
@@ -417,9 +416,7 @@ export default function Header({
                         : advance.id === "conquista-evaluation"
                         ? t.panels.finalAssessmentTitle
                         : (
-                          PEDAGOGICAL_TEXT[currentLanguage]?.[activeConquista]?.[
-                            (advance.order ?? 1) - 1
-                          ]?.title
+                          resolveNestedKey(t, advance.titleKey)
                           ?? `${advance.type?.replace("-", " ")} ${advance.order ?? index + 1}`
                         )
                     }

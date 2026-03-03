@@ -406,9 +406,7 @@ export default function AdvancePanel({
             <p>
               <strong>{t.labels.objective}:</strong>{" "}
               {
-                PEDAGOGICAL_TEXT[currentLanguage]?.[activeConquista]?.[
-                  currentAdvance.order - 1
-                ]?.objective
+                resolveNestedKey(t, currentAdvance.objectiveKey)
               }
             </p>
 
